@@ -1,0 +1,8 @@
+pnpm-debug.log*
+node_modules
+dist
+npm
+packages
+.DS_Store
+
+src/worker/wasm
