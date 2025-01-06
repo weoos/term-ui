@@ -4,6 +4,7 @@
  * @Description: Coding something
  */
 
+import type {Dom} from 'link-dom';
 import type {IFnMaybe} from './types';
 
 export function runFnMaybe<T> (v: IFnMaybe<T>): T {
@@ -20,4 +21,15 @@ export function isMac () {
 
 export function isCtrlPressed (e: KeyboardEvent) {
     return (isMac() && e.metaKey) || (!isMac() && e.ctrlKey);
+}
+
+export function handleCompositionEvents (dom: Dom) {
+    let isComposing = false;
+    dom.on('compositionstart', () => {
+        isComposing = true;
+    });
+    dom.on('compositionend', () => {
+        isComposing = false;
+    });
+    return () => isComposing;
 }

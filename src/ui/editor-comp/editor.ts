@@ -7,7 +7,7 @@ import type {Dom} from 'link-dom';
 import {createStore, dom} from 'link-dom';
 import {Styles} from '../style/style';
 import Eveit from 'eveit';
-import {isCtrlPressed, runFnMaybe} from '../../utils';
+import {handleCompositionEvents, isCtrlPressed, runFnMaybe} from '../../utils';
 import type {IFnMaybe} from 'src/types';
 
 function isMultiByte (char: string) {
@@ -148,7 +148,12 @@ export class Editor extends Eveit<{
         const isCursorChangeKey = (e: KeyboardEvent) => {
             return e.code === 'Backspace' || e.code === 'Enter';
         };
+
+        const isComposing = handleCompositionEvents(this.textarea);
+
         this.textarea.on('keydown', (e: KeyboardEvent) => {
+
+            if (isComposing()) return;
 
             if (this.mode === 'inline') {
                 if (e.code === 'Enter') {
@@ -177,6 +182,7 @@ export class Editor extends Eveit<{
                 }
             }
         }).on('keyup', (e: KeyboardEvent) => {
+            if (isComposing()) return;
             if (isCursorChangeKey(e)) {
                 isDelPressed = false;
             }

@@ -86,21 +86,17 @@ export class WebTerm extends Eveit<IWebTermEvents> {
                 this.container = new Dom(container);
             }
         }
-
         this.initEvents();
-
-
         this.render();
     }
 
     private initEvents () {
-
         this.input.on('key', key => {
             console.log('input onkey', key);
             switch (key) {
                 case 'Enter': {
                     const value = this.input.value;
-                    this.history.push(value);
+                    if (value) { this.history.push(value); }
                     this.emit('enter', value);
                 }; break;
                 case 'ArrowDown': {
