@@ -11,6 +11,7 @@ import {TermDisplay} from './ui/display';
 import {TermEditor} from './ui/editor';
 import {ContainerClass, renderStyle} from './ui/style/style';
 import {Editor} from './ui/editor-comp/editor';
+import {runFnMaybe} from './utils';
 
 function createDefaultStorageProvider () {
     const KEY = '_web_term_ui_history;';
@@ -22,7 +23,6 @@ function createDefaultStorageProvider () {
         }
     };
 }
-
 
 export class WebTerm extends Eveit<IWebTermEvents> {
 
@@ -41,6 +41,8 @@ export class WebTerm extends Eveit<IWebTermEvents> {
         showEditor: false,
     });
 
+    getHeader: ()=>string;
+
     constructor ({
         title = '',
         historyMax = 100,
@@ -49,6 +51,7 @@ export class WebTerm extends Eveit<IWebTermEvents> {
         getHeader,
     }: IWebTermOptions = {}) {
         super();
+        this.getHeader = () => runFnMaybe<string>(getHeader || '');
         renderStyle();
         this.title = title;
         this.history = new TermHistory(historyMax, storageProvider);
@@ -58,6 +61,7 @@ export class WebTerm extends Eveit<IWebTermEvents> {
         });
         
         this.input = new Editor({
+            paddingTop: 2,
             header: getHeader,
             size: 'auto',
             mode: 'inline',
@@ -91,6 +95,10 @@ export class WebTerm extends Eveit<IWebTermEvents> {
         this.render();
     }
 
+    get value () {
+        return this.input.value;
+    }
+
     private initEvents () {
         this.input.on('key', key => {
             // console.log('input onkey', key);
@@ -116,7 +124,7 @@ export class WebTerm extends Eveit<IWebTermEvents> {
                     }
                 };break;
                 case 'Tab': {
-                    this.emit('tab');
+                    this.emit('tab', this.input.beforeValue);
                 }; break;
             }
         });
@@ -167,7 +175,10 @@ export class WebTerm extends Eveit<IWebTermEvents> {
     }
 
     write (content: string|Dom) {
-        this.display.pushContent(content);
+        this.display.pushContent(this.input.fullValue);
+        if (content) {
+            this.display.pushContent(content);
+        }
         this.input.clearContent();
         this.container.el.scrollTop = this.container.el.scrollHeight;
     }
@@ -187,5 +198,15 @@ export class WebTerm extends Eveit<IWebTermEvents> {
     vi (v: string = '') {
         this.store.showEditor = true;
         this.editor.vi(v);
+    }
+
+    clearTerminal () {
+        this.display.container.empty();
+        this.input.clearContent();
+    }
+
+    newLine () {
+        this.display.pushContent(this.input.fullValue);
+        this.input.clearContent();
     }
 }

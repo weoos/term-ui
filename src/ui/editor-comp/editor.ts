@@ -23,7 +23,8 @@ const SingleLineHeight = 17;
 
 export interface IEditorOptions {
     header?: IFnMaybe<string>,
-    padding?: number,
+    paddingLeft?: number,
+    paddingTop?: number,
     size?: 'full' | 'auto',
     mode?: 'full' | 'inline',
     tab?: string,
@@ -45,7 +46,8 @@ export class Editor extends Eveit<{
 
     wrapLine = true;
 
-    private padding: number;
+    private paddingTop: number;
+    private paddingLeft: number;
     private headerGetter: IFnMaybe<string>;
 
     store = createStore({
@@ -58,15 +60,30 @@ export class Editor extends Eveit<{
     private mode: IEditorOptions['mode'];
 
     get value () {
-        const v = this.textarea.value();
+        const v = this.fullValue;
         const n = this.header.length;
         if (!n) { return v; }
         return v.substring(n);
     }
 
+    get fullValue () {
+        return this.textarea.value();
+    }
+
+    get beforeValue () {
+        const v = this.fullValue;
+        const n = this.header.length;
+        const start = this.textarea.el.selectionStart;
+        if (typeof start === 'number' && start > 0) {
+            return v.substring(n, start);
+        }
+        return v.substring(n);
+    }
+
     constructor ({
         header = '',
-        padding = 5,
+        paddingTop = 5,
+        paddingLeft = 5,
         size = 'full',
         mode = 'inline',
         tab = '  ',
@@ -75,7 +92,8 @@ export class Editor extends Eveit<{
         this.size = size;
         this.mode = mode;
         setTabValue(tab);
-        this.padding = padding;
+        this.paddingTop = paddingTop;
+        this.paddingLeft = paddingLeft;
 
         const canvas = dom.canvas;
         this.ctx = (canvas.el as HTMLCanvasElement).getContext('2d')!;
@@ -111,9 +129,10 @@ export class Editor extends Eveit<{
     }
 
     render () {
+        const isFull = this.size === 'full';
         this.container = dom.div.style({
             position: 'relative',
-            height: this.size === 'full' ? '100%' : `${SingleLineHeight + 2 * this.padding}px`,
+            height: isFull ? '100%' : `${SingleLineHeight + 2 * this.paddingTop}px`,
         }).append(
             this.cursor = dom.div.class('editor-cursor').append(
                 dom.div.class('editor-cursor-border'),
@@ -121,7 +140,7 @@ export class Editor extends Eveit<{
             ),
             this.textarea = dom.textarea.class('editor-textarea').value(this.header).style({
                 ...Styles.FullParent,
-                padding: `${this.padding}px`,
+                padding: `${this.paddingTop}px ${this.paddingLeft}px`,
                 backgroundColor: 'transparent',
                 border: 'none',
                 color: '#fff',
@@ -219,7 +238,7 @@ export class Editor extends Eveit<{
                 const lineCount = value.split('\n').length;
                 if (prevLineCount !== lineCount) {
                     prevLineCount = lineCount;
-                    this.textarea.style('height', `${lineCount * SingleLineHeight + 2 * this.padding}px`);
+                    this.textarea.style('height', `${lineCount * SingleLineHeight + 2 * this.paddingTop}px`);
                 }
             }
             this.emit('input');
@@ -297,7 +316,7 @@ export class Editor extends Eveit<{
         let x = width;
         let lineOffset = 0;
 
-        const clientWidth = el.clientWidth - 2 * this.padding;
+        const clientWidth = el.clientWidth - 2 * this.paddingLeft;
         // 考虑换行
         if (this.wrapLine) {
             // 当前行的换行数
@@ -368,8 +387,8 @@ export class Editor extends Eveit<{
         }
 
         this.cursor.style({
-            left: `${left + this.padding}px`,
-            top: `${y + this.padding - el.scrollTop}px`,
+            left: `${left + this.paddingLeft}px`,
+            top: `${y + this.paddingTop - el.scrollTop}px`,
             width: `${wordWidth}px`,
         });
         this.cursorText.text(word);

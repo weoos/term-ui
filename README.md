@@ -77,6 +77,8 @@ export interface IWebTermOptions {
     replaceEdit(content: string): void;
     pushEdit(content: string): void;
     vi(v?: string): void;
+	clearTerminal(): void;
+	newLine(): void;
 }
 ```
 

@@ -17,7 +17,9 @@ const term = new WebTerm({
     getHeader: () => '/ admin$ '
 });
 term.on('enter', v => {
-    if (v === 'vi') term.vi('test\n11');
+    if (!v) term.write('');
+    else if (v === 'vi') term.vi('test\n11');
+    else if (v === 'clear') term.clearTerminal();
     else term.write(`Exec "${v}"`);
 });
 term.on('edit-done', v => {
@@ -33,13 +35,15 @@ document.getElementById('code')!.appendChild(
 const term = new WebTerm({
     title: [
         'This is a Demo. Type "vi" to use vi editor',
-        'And "ctrl/cmd + s" to Save, "esc" to cancel.\\n'
-    ].join('\\n'),
+        'And "ctrl/cmd + s" to Save, "esc" to cancel.\n'
+    ].join('\n'),
     container: '#container',
     getHeader: () => '/ admin$ '
 });
 term.on('enter', v => {
-    if (v === 'vi') term.vi();
+    if (!v) term.write('');
+    else if (v === 'vi') term.vi('test\n11');
+    else if (v === 'clear') term.clearTerminal();
     else term.write(\`Exec "\${v}"\`);
 });
 term.on('edit-done', v => {
@@ -51,5 +55,5 @@ term.on('tab', () => {
     })
 );
 
-
+// @ts-ignore
 window.term = term;

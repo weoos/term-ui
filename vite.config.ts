@@ -84,7 +84,7 @@ function geneBuildConfig (isIIFE = false): UserConfig {
             },
             rollupOptions: {
                 // 不需要
-                external: isIIFE ? [] : Object.keys(dependencies),
+                // external: isIIFE ? [] : Object.keys(dependencies),
                 plugins: [
                     babel({
                         exclude: 'node_modules/**',

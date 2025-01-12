@@ -11,6 +11,8 @@ import {addStyle} from './style/style';
 addStyle({
     '.display-item': {
         'padding': 2,
+        wordBreak: 'break-word',
+        whiteSpace: 'pre-wrap',
     }
 });
 
