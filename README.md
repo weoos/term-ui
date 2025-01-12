@@ -65,11 +65,11 @@ export interface IWebTermOptions {
 ```ts
 {
     clearHistory(): void;
-	write(content: string | Dom): void;
-	insertEdit(content: string): void;
-	replaceEdit(content: string): void;
-	pushEdit(content: string): void;
-	vi(v?: string): void;
+    write(content: string | Dom): void;
+    insertEdit(content: string): void;
+    replaceEdit(content: string): void;
+    pushEdit(content: string): void;
+    vi(v?: string): void;
 }
 ```
 
@@ -80,6 +80,6 @@ export interface IWebTermEvents {
     'enter': [string],
     'edit-done': [string],
     'edit-cancel': [],
-	"tab": [];
+    'tab': [];
 }
 ```
