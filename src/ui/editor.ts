@@ -42,7 +42,7 @@ export class TermEditor extends Eveit<{
                 e.preventDefault();
             }
             if (e.code === 'Escape') {
-                console.log('Esc press');
+                // console.log('Esc press');
                 this.editor.clearContent();
                 this.emit('edit-cancel');
             }
@@ -50,7 +50,7 @@ export class TermEditor extends Eveit<{
     }
 
     vi (v: string) {
-        this.editor.replaceText(v);
         this.editor.textarea.el.focus();
+        this.editor.replaceText(v);
     }
 }

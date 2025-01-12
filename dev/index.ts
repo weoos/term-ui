@@ -17,7 +17,7 @@ const term = new WebTerm({
     getHeader: () => '/ admin$ '
 });
 term.on('enter', v => {
-    if (v === 'vi') term.vi();
+    if (v === 'vi') term.vi('test\n11');
     else term.write(`Exec "${v}"`);
 });
 term.on('edit-done', v => {

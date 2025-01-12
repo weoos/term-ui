@@ -93,7 +93,7 @@ export class WebTerm extends Eveit<IWebTermEvents> {
 
     private initEvents () {
         this.input.on('key', key => {
-            console.log('input onkey', key);
+            // console.log('input onkey', key);
             switch (key) {
                 case 'Enter': {
                     const value = this.input.value;

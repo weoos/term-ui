@@ -197,7 +197,6 @@ export class Editor extends Eveit<{
                 }
             }
 
-            console.log(e.code);
             if (isCtrlPressed(e) && e.code === 'KeyZ') {
                 clearTimeout(timer);
                 timer = setTimeout(() => {
@@ -225,7 +224,6 @@ export class Editor extends Eveit<{
             }
             this.emit('input');
         }).on('selectionchange', () => {
-            console.log('selectionchange');
             if (remove) {
                 remove();
                 remove = null;
@@ -382,18 +380,18 @@ export class Editor extends Eveit<{
     }
 
     pushText (v: string) {
-        console.log(`pushText "${v}"`);
+        // console.log(`pushText "${v}"`);
         const el = this.textarea.el;
         el.selectionStart = el.selectionEnd = el.value.length;
         this.insertText(v);
     }
     insertText (content: string) {
-        console.log(`insertText "${content}"`);
+        // console.log(`insertText "${content}"`);
         if (!content)  return;
         document.execCommand('insertText', false, content);
     }
     replaceText (v: string) {
-        console.log(`replaceText "${v}"`);
+        // console.log(`replaceText "${v}"`);
         this.clearContent(false);
         this.pushText(v);
         this.relocateCursorPosition();
@@ -405,7 +403,7 @@ export class Editor extends Eveit<{
         el.selectionEnd = el.value.length + 1;
         if (start === el.value.length) return;
         
-        console.log(`clearContent "${el.value}" start=${start} end=${el.value.length} ${el.selectionStart} ${el.selectionEnd}`);
+        // console.log(`clearContent "${el.value}" start=${start} end=${el.value.length} ${el.selectionStart} ${el.selectionEnd}`);
         document.execCommand('delete', false);
         if (relocate)
             this.relocateCursorPosition();

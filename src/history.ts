@@ -50,7 +50,7 @@ export class TermHistory {
         }
         if (this.history.canBack()) {
             const value = this.history.back();
-            console.log('history back', value);
+            // console.log('history back', value);
             return value;
         } else {
             // 如果翻到第一条了 加一个光标移到最前面
