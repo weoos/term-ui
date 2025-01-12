@@ -24,6 +24,23 @@ export const Styles = {
         lineHeight: '17px',
         boxSizing: 'border-box',
     } as IStyle,
+    ScrollBar: {
+        '&::-webkit-scrollbar': {
+            width: '5px',
+            cursor: 'pointer',
+            height: '5px',
+        },
+        '&::-webkit-scrollbar-button': {
+            display: 'none',
+        },
+        '&::-webkit-scrollbar-track': {
+            display: 'none',
+        },
+        '&::-webkit-scrollbar-thumb': {
+            backgroundColor: '#555',
+            cursor: 'pointer',
+        }
+    } as IStyle,
 };
 
 const styleStore: Parameters<typeof style>[0] = {};
@@ -38,11 +55,12 @@ export function renderStyle () {
 
 addStyle({
     [`.${ContainerClass}`]: {
-        overflow: 'auto',
+        position: 'relative',
         ...Styles.Text,
         '*': {
             ...Styles.Text,
-        }
+        },
+        ...Styles.ScrollBar,
     },
     '.editor-cursor': {
         position: 'absolute',
@@ -61,5 +79,8 @@ addStyle({
         '.editor-cursor-text': {
             ...Styles.FullParent,
         }
+    },
+    '.editor-textarea': {
+        ...Styles.ScrollBar,
     }
 });

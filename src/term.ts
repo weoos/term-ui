@@ -85,6 +85,7 @@ export class WebTerm extends Eveit<IWebTermEvents> {
             } else {
                 this.container = new Dom(container);
             }
+            this.container.addClass(ContainerClass);
         }
         this.initEvents();
         this.render();
@@ -114,6 +115,9 @@ export class WebTerm extends Eveit<IWebTermEvents> {
                         this.input.setCursorToHead();
                     }
                 };break;
+                case 'Tab': {
+                    this.emit('tab');
+                }; break;
             }
         });
         this.input.on('input', () => {
@@ -148,6 +152,7 @@ export class WebTerm extends Eveit<IWebTermEvents> {
             fontSize: '16px',
             lineHeight: '20px',
             fontFamily: 'Menlo, Monaco, "Courier New", monospace',
+            overflow: () => this.store.showEditor ? 'hidden' : 'auto',
         }).append(
             this.mainContainer = dom.div.append(
                 this.display.container,
@@ -164,6 +169,19 @@ export class WebTerm extends Eveit<IWebTermEvents> {
     write (content: string|Dom) {
         this.display.pushContent(content);
         this.input.clearContent();
+        this.container.el.scrollTop = this.container.el.scrollHeight;
+    }
+
+    insertEdit (content: string) {
+        this.editor.editor.insertText(content);
+    }
+
+    replaceEdit (content: string) {
+        this.editor.editor.replaceText(content);
+    }
+
+    pushEdit (content: string) {
+        this.editor.editor.pushText(content);
     }
 
     vi (v: string = '') {

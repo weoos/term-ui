@@ -10,7 +10,7 @@ import type {IEditorOptions} from './editor-comp/editor';
 import {Editor} from './editor-comp/editor';
 import {Styles} from './style/style';
 import {isCtrlPressed} from '../utils';
-import Eveit from 'eveit';
+import {Eveit} from 'eveit';
 
 export class TermEditor extends Eveit<{
     'edit-done': [string],
@@ -42,6 +42,7 @@ export class TermEditor extends Eveit<{
                 e.preventDefault();
             }
             if (e.code === 'Escape') {
+                console.log('Esc press');
                 this.editor.clearContent();
                 this.emit('edit-cancel');
             }

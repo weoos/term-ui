@@ -31,7 +31,7 @@ export class TermDisplay {
         const className = 'display-item';
         this.container.append(
             typeof content === 'string' ?
-                dom.div.class(className).text(content) :
+                dom.div.class(className).text(content + '\n') :
                 content.addClass(className)
         );
     }

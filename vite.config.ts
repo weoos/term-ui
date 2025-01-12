@@ -3,12 +3,13 @@
  * @Date: 2023-04-04 23:20:27
  * @Description: Coding something
  */
-import {UserConfig, defineConfig} from 'vite';
+import type {UserConfig} from 'vite';
+import {defineConfig} from 'vite';
 import {babel} from '@rollup/plugin-babel';
 import {resolve} from 'path';
 import pkg from './package.json';
 import {execSync} from 'child_process';
-import {writeFileSync, copyFileSync} from 'fs';
+import {writeFileSync, copyFileSync, rmdirSync} from 'fs';
 
 const {version, ebuild, dependencies = {}, name} = pkg;
 
@@ -22,7 +23,8 @@ export default defineConfig(({mode}) => {
 
     const config = ({
         'development': geneDevConfig,
-        'sdk': geneBuildConfig,
+        'sdk': () => geneBuildConfig(),
+        'sdk_iife': () => geneBuildConfig(true),
         'app': geneBuildAppConfig
     })[mode]();
 
@@ -55,28 +57,34 @@ function geneBuildAppConfig (): UserConfig {
     };
 }
 
-function geneBuildConfig (): UserConfig {
+function geneBuildConfig (isIIFE = false): UserConfig {
     return {
         plugins: [{
             name: 'generate-npm-stuff',
             writeBundle () {
-                execSync(`npx dts-bundle-generator -o npm/${fileName}.es.min.d.ts src/index.ts`);
-                generatePackage();
+                if (isIIFE) {
+                    const fullName = `${fileName}.iife.min.js`;
+                    copyFileSync(`npm/iife/${fullName}`, `npm/${fullName}`);
+                    rmdirSync('npm/iife', {recursive: true});
+                } else {
+                    execSync(`npx dts-bundle-generator -o npm/${fileName}.es.min.d.ts src/index.ts`);
+                    generatePackage();
+                    execSync('vite build -m=sdk_iife');
+                }
             }
         }],
         
         build: {
             minify: true,
-            
             lib: {
                 entry: resolve(__dirname, 'src/index.ts'), // 打包的入口文件
                 name: ebuild.libName, // 包名
-                formats: ['es', 'iife', 'cjs'], // 打包模式，默认是es和umd都打
+                formats: isIIFE ? ['iife'] : ['es'], // 打包模式，默认是es和umd都打
                 fileName: (format: string) => `${fileName}.${format}.min.js`,
             },
             rollupOptions: {
                 // 不需要
-                // external: [ ...Object.keys(deps.dependencies) ],
+                external: isIIFE ? [] : Object.keys(dependencies),
                 plugins: [
                     babel({
                         exclude: 'node_modules/**',
@@ -85,7 +93,7 @@ function geneBuildConfig (): UserConfig {
                     })
                 ]
             },
-            outDir: resolve(__dirname, 'npm'), // 打包后存放的目录文件
+            outDir: resolve(__dirname, isIIFE ? 'npm/iife' : 'npm'), // 打包后存放的目录文件
         },
     };
 }
@@ -98,7 +106,7 @@ function generatePackage () {
     writeFileSync('./npm/package.json', JSON.stringify({
         ...ebuild.publish,
         dependencies,
-        'main': `${fileName}.cjs.min.js`,
+        'main': `${fileName}.es.min.js`,
         'module': `${fileName}.es.min.js`,
         'unpkg': `${fileName}.iife.min.js`,
         'jsdelivr': `${fileName}.iife.min.js`,

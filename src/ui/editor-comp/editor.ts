@@ -6,9 +6,10 @@
 import type {Dom} from 'link-dom';
 import {createStore, dom} from 'link-dom';
 import {Styles} from '../style/style';
-import Eveit from 'eveit';
+import {Eveit} from 'eveit';
 import {handleCompositionEvents, isCtrlPressed, runFnMaybe} from '../../utils';
-import type {IFnMaybe} from 'src/types';
+import type {IFnMaybe} from '../../types';
+import {onKeyDown, setTabValue} from 'tab-text';
 
 function isMultiByte (char: string) {
     if (!char) return false;
@@ -25,15 +26,16 @@ export interface IEditorOptions {
     padding?: number,
     size?: 'full' | 'auto',
     mode?: 'full' | 'inline',
+    tab?: string,
 }
 
 export class Editor extends Eveit<{
-    key: ['Enter'|'ArrowUp'|'ArrowDown'],
+    key: ['Enter'|'ArrowUp'|'ArrowDown'|'Tab'],
     input: []
 }> {
     container: Dom;
 
-    textarea: Dom;
+    textarea: Dom<HTMLTextAreaElement>;
 
     cursor: Dom;
 
@@ -67,10 +69,12 @@ export class Editor extends Eveit<{
         padding = 5,
         size = 'full',
         mode = 'inline',
+        tab = '  ',
     }: IEditorOptions = {}) {
         super();
         this.size = size;
         this.mode = mode;
+        setTabValue(tab);
         this.padding = padding;
 
         const canvas = dom.canvas;
@@ -115,7 +119,7 @@ export class Editor extends Eveit<{
                 dom.div.class('editor-cursor-border'),
                 this.cursorText = dom.div.class('editor-cursor-text'),
             ),
-            this.textarea = dom.textarea.value(this.header).style({
+            this.textarea = dom.textarea.class('editor-textarea').value(this.header).style({
                 ...Styles.FullParent,
                 padding: `${this.padding}px`,
                 backgroundColor: 'transparent',
@@ -142,7 +146,7 @@ export class Editor extends Eveit<{
     private initEvents () {
 
         let isDelPressed = false;
-        const el = (this.textarea.el as HTMLTextAreaElement);
+        const el = (this.textarea.el);
         let prevLineCount = 1;
 
         const isCursorChangeKey = (e: KeyboardEvent) => {
@@ -150,6 +154,10 @@ export class Editor extends Eveit<{
         };
 
         const isComposing = handleCompositionEvents(this.textarea);
+
+        let timer: any = null;
+
+        let remove: any = this.compatSelChange();
 
         this.textarea.on('keydown', (e: KeyboardEvent) => {
 
@@ -164,12 +172,19 @@ export class Editor extends Eveit<{
                         this.emit('key', 'Enter');
                         return;
                     }
-                } else if (e.code === 'ArrowUp' || e.code === 'ArrowDown') {
+                } else if (e.code === 'ArrowUp' || e.code === 'ArrowDown' || e.code === 'Tab') {
                     e.preventDefault();
                     this.emit('key', e.code);
                     return;
                 }
             }
+            if (e.code === 'Tab') {
+                if (el.selectionStart !== el.selectionEnd) {
+                    this.showCursor(false);
+                }
+            }
+
+            onKeyDown.call(el, e);
 
             if (isCursorChangeKey(e)) {
                 isDelPressed = true;
@@ -180,6 +195,14 @@ export class Editor extends Eveit<{
                 if (y === 0 && x === this.headerWidth) {
                     e.preventDefault();
                 }
+            }
+
+            console.log(e.code);
+            if (isCtrlPressed(e) && e.code === 'KeyZ') {
+                clearTimeout(timer);
+                timer = setTimeout(() => {
+                    this.relocateCursorPosition();
+                }, 50);
             }
         }).on('keyup', (e: KeyboardEvent) => {
             if (isComposing()) return;
@@ -202,9 +225,12 @@ export class Editor extends Eveit<{
             }
             this.emit('input');
         }).on('selectionchange', () => {
-            if (el.selectionStart !== el.selectionEnd) return;
-            // console.log('selectionchange', el.selectionStart, el.selectionEnd);
-            this.relocateCursorPosition();
+            console.log('selectionchange');
+            if (remove) {
+                remove();
+                remove = null;
+            }
+            this._onSelectionChange();
         }).on('scroll', () => {
             this.relocateCursorPosition();
         }).on('focus', () => {
@@ -220,7 +246,35 @@ export class Editor extends Eveit<{
                 this.relocateCursorPosition();
             }
         });
+    }
 
+    private _onSelectionChange () {
+        const el = this.textarea.el;
+        if (el.selectionStart === el.selectionEnd) {
+            // console.log('selectionchange', el.selectionStart, el.selectionEnd);
+            this.relocateCursorPosition();
+        } else {
+            if (el.clientWidth === 0) return;
+            const min = this.header.length;
+            if (el.selectionStart < min) {
+                el.selectionStart = min;
+            }
+            const max = el.value.length;
+            if (el.selectionEnd > max) {
+                el.selectionEnd = max;
+            }
+        }
+    }
+
+    private compatSelChange () {
+        // 兼容 safari不支持 textarea selectionchange
+        const fn = () => {
+            const el = this.textarea.el;
+            if (document.activeElement !== el) return;
+            this._onSelectionChange();
+        };
+        document.addEventListener('selectionchange', fn);
+        return () => document.removeEventListener('selectionchange', fn);
     }
 
     private measureTextWidth (text: string) {
@@ -293,9 +347,19 @@ export class Editor extends Eveit<{
         };
     }
 
+    private _isShowCursor = false;
+    private showCursor (v = true) {
+        if (this._isShowCursor === v) return;
+        this.cursor.style('visibility', v ? 'visible' : 'hidden');
+        this._isShowCursor = v;
+    }
+
     private relocateCursorPosition () {
         const el = (this.textarea.el as HTMLTextAreaElement);
-        if (el.clientWidth === 0) return;
+
+
+        this.showCursor();
+
         const {x, y, word, wordWidth} = this.getCursorPosition();
 
         let left = x;
@@ -318,19 +382,37 @@ export class Editor extends Eveit<{
     }
 
     pushText (v: string) {
-        this.textarea.value(
-            this.textarea.value() + v
-        );
+        console.log(`pushText "${v}"`);
+        const el = this.textarea.el;
+        el.selectionStart = el.selectionEnd = el.value.length;
+        this.insertText(v);
+    }
+    insertText (content: string) {
+        console.log(`insertText "${content}"`);
+        if (!content)  return;
+        document.execCommand('insertText', false, content);
     }
     replaceText (v: string) {
-        this.textarea.value(`${this.header}${v}`);
+        console.log(`replaceText "${v}"`);
+        this.clearContent(false);
+        this.pushText(v);
         this.relocateCursorPosition();
     }
-    clearContent () {
-        this.textarea.value(this.header);
-        this.relocateCursorPosition();
+    clearContent (relocate = true) {
+        const el = this.textarea.el;
+        const start = this.header.length;
+        el.selectionStart = start;
+        el.selectionEnd = el.value.length + 1;
+        if (start === el.value.length) return;
+        
+        console.log(`clearContent "${el.value}" start=${start} end=${el.value.length} ${el.selectionStart} ${el.selectionEnd}`);
+        document.execCommand('delete', false);
+        if (relocate)
+            this.relocateCursorPosition();
     }
     setCursorToHead () {
-        (this.textarea.el as HTMLTextAreaElement).setSelectionRange(0, 0);
+        const el = this.textarea.el;
+        el.selectionStart = el.selectionEnd = this.header.length;
+        // (this.textarea.el as HTMLTextAreaElement).setSelectionRange(0, 0);
     }
 }

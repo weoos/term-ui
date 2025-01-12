@@ -13,6 +13,7 @@ export type IFnMaybe<T=any> = T|(()=>T);
 
 export interface IWebTermEvents {
     'enter': [string],
+    'tab': [],
     'edit-done': [string],
     'edit-cancel': [],
 }

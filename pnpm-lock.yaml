@@ -12,8 +12,11 @@ dependencies:
     specifier: ^0.0.8
     version: registry.npmmirror.com/history-stack@0.0.8
   link-dom:
-    specifier: ^0.0.7
-    version: registry.npmmirror.com/link-dom@0.0.7
+    specifier: ^0.0.8
+    version: registry.npmmirror.com/link-dom@0.0.8
+  tab-text:
+    specifier: ^0.0.4
+    version: registry.npmmirror.com/tab-text@0.0.4
 
 devDependencies:
   '@babel/preset-env':
@@ -40,6 +43,9 @@ devDependencies:
   eslint:
     specifier: ^8.2.0
     version: registry.npmmirror.com/eslint@8.57.0
+  light-hl:
+    specifier: ^0.0.2
+    version: registry.npmmirror.com/light-hl@0.0.2
   terser:
     specifier: ^5.16.8
     version: registry.npmmirror.com/terser@5.31.6
@@ -3134,10 +3140,24 @@ packages:
       type-check: registry.npmmirror.com/type-check@0.4.0
     dev: true
 
+  registry.npmmirror.com/light-hl@0.0.2:
+    resolution: {integrity: sha512-ITNGVD0NYfbLLpUQTyM5Dfj4HPQOkPcDjs2UaKs0+vRm9nlhb9PUp3CSWJaMWeaduaSwPwFIJdmYJpcirklAyA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/light-hl/-/light-hl-0.0.2.tgz}
+    name: light-hl
+    version: 0.0.2
+    dependencies:
+      link-dom: registry.npmmirror.com/link-dom@0.0.7
+    dev: true
+
   registry.npmmirror.com/link-dom@0.0.7:
     resolution: {integrity: sha512-scOdBI52XgEoGFr3U5pB4Ygp/f0G86tEgHGygtDLTTQoUBUb4wB0JWKuelprn32R9+voecUMUfZTRrli7w1beg==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/link-dom/-/link-dom-0.0.7.tgz}
     name: link-dom
     version: 0.0.7
+    dev: true
+
+  registry.npmmirror.com/link-dom@0.0.8:
+    resolution: {integrity: sha512-18Igc4dPFleQmXByg5K7R9w6ps6lwhcb92ICKUC1SzsqQpwqITFevSAgbKVEDm68imUoUBJxqmINZgSOfWDjUg==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/link-dom/-/link-dom-0.0.8.tgz}
+    name: link-dom
+    version: 0.0.8
     dev: false
 
   registry.npmmirror.com/locate-path@6.0.0:
@@ -3597,6 +3617,12 @@ packages:
     name: systemjs
     version: 6.15.1
     dev: true
+
+  registry.npmmirror.com/tab-text@0.0.4:
+    resolution: {integrity: sha512-mnsfzaEKNT52qnpXTOSOOG2Ovy+CgzRiLYo8O83F3bi5P2ZGkDLYkUAVecqN60w0FnsKr4TRx32CsepbKNuJAA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/tab-text/-/tab-text-0.0.4.tgz}
+    name: tab-text
+    version: 0.0.4
+    dev: false
 
   registry.npmmirror.com/terser@5.31.6:
     resolution: {integrity: sha512-PQ4DAriWzKj+qgehQ7LK5bQqCFNMmlhjR2PFFLuqGCpuCAauxemVBWwWOxo3UIwWQx8+Pr61Df++r76wDmkQBg==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/terser/-/terser-5.31.6.tgz}
