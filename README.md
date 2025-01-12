@@ -45,6 +45,13 @@ term.on('tab', () => {
 });
 ```
 
+CDN
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/web-term-ui"></script>
+<script>console.log(window.WebTermUi);</script>
+```
+
 ## Options
 
 ```ts
