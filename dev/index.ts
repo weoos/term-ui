@@ -35,8 +35,8 @@ document.getElementById('code')!.appendChild(
 const term = new WebTerm({
     title: [
         'This is a Demo. Type "vi" to use vi editor',
-        'And "ctrl/cmd + s" to Save, "esc" to cancel.\n'
-    ].join('\n'),
+        'And "ctrl/cmd + s" to Save, "esc" to cancel.\\n'
+    ].join('\\n'),
     container: '#container',
     getHeader: () => '/ admin$ '
 });

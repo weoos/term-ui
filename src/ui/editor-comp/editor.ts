@@ -17,9 +17,12 @@ function isMultiByte (char: string) {
     return code >= 0x80;
 }
 
-const SingleCharWidth = 9;
-const MultiCharWidth = 15;
 const SingleLineHeight = 17;
+
+type ILineInfoList = {
+    content: string,
+    width: number,
+}[];
 
 export interface IEditorOptions {
     header?: IFnMaybe<string>,
@@ -34,6 +37,9 @@ export class Editor extends Eveit<{
     key: ['Enter'|'ArrowUp'|'ArrowDown'|'Tab'],
     input: []
 }> {
+
+    SingleCharWidth = 9;
+    MultiCharWidth = 15;
     container: Dom;
 
     textarea: Dom<HTMLTextAreaElement>;
@@ -99,6 +105,10 @@ export class Editor extends Eveit<{
         this.ctx = (canvas.el as HTMLCanvasElement).getContext('2d')!;
         this.ctx.font = '15px courier-new, courier, monospace';
 
+        this.SingleCharWidth = this.measureTextWidth('a');
+        this.MultiCharWidth = this.measureTextWidth('一');
+        // console.log('width', this.SingleCharWidth, this.MultiCharWidth);
+
         this.headerGetter = header;
         this.render();
         this._monitorStart();
@@ -159,14 +169,12 @@ export class Editor extends Eveit<{
         }
 
         this.initEvents();
-
     }
 
     private initEvents () {
 
         let isDelPressed = false;
         const el = (this.textarea.el);
-        let prevLineCount = 1;
 
         const isCursorChangeKey = (e: KeyboardEvent) => {
             return e.code === 'Backspace' || e.code === 'Enter';
@@ -234,11 +242,9 @@ export class Editor extends Eveit<{
                 this.relocateCursorPosition();
             }
             if (this.size === 'auto') {
-                const value = el.value;
-                const lineCount = value.split('\n').length;
-                if (prevLineCount !== lineCount) {
-                    prevLineCount = lineCount;
-                    this.textarea.style('height', `${lineCount * SingleLineHeight + 2 * this.paddingTop}px`);
+                const height = this._countContentHeight(this.fullValue, true);
+                if (height != el.clientHeight) {
+                    this.textarea.style('height', `${height}px`);
                 }
             }
             this.emit('input');
@@ -263,6 +269,83 @@ export class Editor extends Eveit<{
                 this.relocateCursorPosition();
             }
         });
+    }
+
+
+    private _countContentHeight (content: string, needPadding = false) {
+        return this._countContentSize(content, needPadding).height;
+    }
+
+    private _countContentSize (content: string, needPadding = false): {
+        lines: ILineInfoList[],
+        height: number,
+    } {
+        const lines = content.split('\n');
+        let height = 0;
+        const linesInfo: ILineInfoList[] = lines.map(line => {
+            const list = this.countSingleLineInfo(line);
+            height += list.length * SingleLineHeight;
+            return list;
+        });
+        // console.log('linesInfo', JSON.stringify(linesInfo));
+        return {
+            lines: linesInfo,
+            height: height + (needPadding ? (2 * this.paddingTop) : 0)
+        };
+    }
+
+    private countSingleLineInfo (line: string): ILineInfoList {
+        const contentWidth = this._getLineBoxWidth();
+        if (contentWidth <= 0) return [{content: line, width: this.measureTextWidth(line)}];
+        // 一行所能放下的最小字符数
+        const minCount = Math.floor(contentWidth / this.MultiCharWidth);
+        if (line.length <= minCount) {
+            return [{content: line, width: this.measureTextWidth(line)}];
+        }
+
+        const info: ILineInfoList = [];
+
+        let count = line.length;
+
+        let start = 0;
+        let end = start + minCount;
+
+        const getInfo = () => {
+            const content = line.substring(start, end);
+            return {
+                content,
+                width: this.measureTextWidth(content)
+            };
+        };
+
+        while (count > minCount) {
+            let {content, width} = getInfo();
+
+            let prevContent: string;
+            let prevWidth: number;
+            do {
+                prevContent = content;
+                prevWidth = width;
+                if (end >= line.length) {
+                    end ++;
+                    break;
+                }
+                content += line[end];
+                width = this.measureTextWidth(content);
+                end ++;
+            } while (width <= contentWidth);
+            // 此时width超过了最大width
+            info.push({content: prevContent, width: prevWidth});
+            start = end - 1;
+            end = start + minCount;
+            count -= prevContent.length;
+        }
+        if (start < line.length) {
+            info.push(getInfo());
+        }
+
+        return info;
+
     }
 
     private _onSelectionChange () {
@@ -299,66 +382,41 @@ export class Editor extends Eveit<{
         return this.ctx.measureText(text).width;
     }
 
+    private _getLineBoxWidth () {
+        return this.textarea.el.clientWidth - 2 * this.paddingLeft;
+    }
+
     private getCursorPosition () {
         const el = this.textarea.el as HTMLTextAreaElement;
         const selectionStart = el.selectionStart;
-        const value = el.value.substring(0, selectionStart);
-
-        const arr = value.split('\n');
-
-        const curLineBefore = arr.pop()!;
-        const lineCount = arr.length;
+        //
+        const cursorBefore = el.value.substring(0, selectionStart);
+        const clientWidth = this._getLineBoxWidth();
 
         const cursorWord = el.value[selectionStart] || '';
 
+        let x = 0, y = 0;
 
-        const width = this.measureTextWidth(curLineBefore);
-        let x = width;
-        let lineOffset = 0;
-
-        const clientWidth = el.clientWidth - 2 * this.paddingLeft;
         // 考虑换行
         if (this.wrapLine) {
-            // 当前行的换行数
-            lineOffset = Math.floor(width / clientWidth);
-            x = width % clientWidth;
-
-            // 计算gap
-            if (lineOffset > 0) {
-                let gap = 0;
-                let count = lineOffset;
-                let start = 0;
-                const length = curLineBefore.length;
-                while (count > 0) {
-                    const minLength = Math.floor(clientWidth / MultiCharWidth);
-                    let text = curLineBefore.substring(start, start + minLength);
-                    start += minLength;
-                    let prev = this.measureTextWidth(text);
-                    for (let i = start; i < length; i++) {
-                        text += curLineBefore[i];
-                        const w = this.measureTextWidth(text);
-                        if (w > clientWidth) {
-                            start = i;
-                            gap += (clientWidth - prev);
-                            break;
-                        }
-                        prev = w;
-                    }
-                    count --;
-                }
-                x += gap;
-            }
+            const list = this._countContentSize(cursorBefore);
+            y = list.height - SingleLineHeight;
+            x = list.lines.pop()?.pop()?.width || 0;
+        } else {
+            x = this.measureTextWidth(cursorBefore);
+            y = (cursorBefore.split('\n').length - 1) * SingleLineHeight;
         }
 
-        const wordWidth = isMultiByte(cursorWord) ? MultiCharWidth : SingleCharWidth;
+        const wordWidth = isMultiByte(cursorWord) ? this.MultiCharWidth : this.SingleCharWidth;
+
         if (x + wordWidth > clientWidth) {
             x = 0;
-            lineOffset += 1;
+            y += SingleLineHeight;
         }
 
         return {
             x,
-            y: SingleLineHeight * (lineCount + lineOffset),
+            y,
             word: cursorWord,
             wordWidth,
         };
@@ -374,10 +432,11 @@ export class Editor extends Eveit<{
     private relocateCursorPosition () {
         const el = (this.textarea.el as HTMLTextAreaElement);
 
-
         this.showCursor();
 
         const {x, y, word, wordWidth} = this.getCursorPosition();
+
+        // console.log('relocateCursorPosition', x, y, word, wordWidth);
 
         let left = x;
         if (y === 0 && x < this.headerWidth) {

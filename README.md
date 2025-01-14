@@ -7,7 +7,7 @@
 
 A Web Terminal UI Lib
 
-[Demo](https://theajack.github.io/web-term-ui)
+[Demo](https://theajack.github.io/web-term-ui) | [Playground](https://theajack.github.io/jsbox?github=theajack.web-term-ui)
 
 ## Features
 

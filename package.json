@@ -5,7 +5,7 @@
     "fileName": "web-term-ui",
     "publish": {
       "name": "web-term-ui",
-      "version": "0.0.3",
+      "version": "0.0.5",
       "description": "Emulate the UI components of the terminal.",
       "repository": {
         "type": "git",
