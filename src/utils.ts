@@ -5,12 +5,6 @@
  */
 
 import type {Dom} from 'link-dom';
-import type {IFnMaybe} from './types';
-
-export function runFnMaybe<T> (v: IFnMaybe<T>): T {
-    // @ts-ignore
-    return typeof v === 'function' ? v() : v;
-}
 
 
 export function isMac () {

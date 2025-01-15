@@ -10,7 +10,7 @@ window.jsboxCode = {
     hideLog: true,
     code: `document.getElementById('jx-app').innerHTML = '<div id="container" style="width: 600px; height: 400px;"></div>';
 var {WebTerm} = window.WebTermUi
-const term = new WebTerm({
+var term = new WebTerm({
     title: [
         'This is a Demo. Type "vi" to use vi editor',
         'And "ctrl/cmd + s" to Save, "esc" to cancel.\\n'

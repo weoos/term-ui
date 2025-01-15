@@ -7,11 +7,10 @@ import {Eveit} from 'eveit';
 import type {IWebTermEvents, IWebTermOptions} from './types';
 import {TermHistory} from './history';
 import {dom, Dom, mount, createStore} from 'link-dom';
-import {TermDisplay} from './ui/display';
+import {TermDisplay, DisplayGap} from './ui/display';
 import {TermEditor} from './ui/editor';
 import {ContainerClass, renderStyle} from './ui/style/style';
 import {Editor} from './ui/editor-comp/editor';
-import {runFnMaybe} from './utils';
 
 function createDefaultStorageProvider () {
     const KEY = '_web_term_ui_history;';
@@ -37,32 +36,36 @@ export class WebTerm extends Eveit<IWebTermEvents> {
     display: TermDisplay;
     editor: TermEditor;
 
+    private _padding = 0;
+
     store = createStore({
         showEditor: false,
     });
-
-    getHeader: ()=>string;
 
     constructor ({
         title = '',
         historyMax = 100,
         storageProvider = createDefaultStorageProvider(),
         container,
-        getHeader,
+        header,
+        padding = 5,
     }: IWebTermOptions = {}) {
         super();
-        this.getHeader = () => runFnMaybe<string>(getHeader || '');
         renderStyle();
+        this._padding = padding;
         this.title = title;
         this.history = new TermHistory(historyMax, storageProvider);
 
         this.editor = new TermEditor(this.store, {
             mode: 'full',
+            paddingLeft: padding,
+            paddingTop: padding,
         });
         
         this.input = new Editor({
-            paddingTop: 2,
-            header: getHeader,
+            paddingTop: DisplayGap,
+            paddingLeft: 0,
+            header,
             size: 'auto',
             mode: 'inline',
         });
@@ -97,6 +100,10 @@ export class WebTerm extends Eveit<IWebTermEvents> {
 
     get value () {
         return this.input.value;
+    }
+
+    get header () {
+        return this.input.header;
     }
 
     private initEvents () {
@@ -162,10 +169,11 @@ export class WebTerm extends Eveit<IWebTermEvents> {
             fontFamily: 'Menlo, Monaco, "Courier New", monospace',
             overflow: () => this.store.showEditor ? 'hidden' : 'auto',
         }).append(
-            this.mainContainer = dom.div.append(
-                this.display.container,
-                this.input.container,
-            ),
+            this.mainContainer = dom.div.style('padding', this._padding)
+                .append(
+                    this.display.container,
+                    this.input.container,
+                ).show(() => !this.store.showEditor),
             this.editor.container
         );
     }
@@ -180,7 +188,7 @@ export class WebTerm extends Eveit<IWebTermEvents> {
             this.display.pushContent(content);
         }
         this.input.clearContent();
-        this.container.el.scrollTop = this.container.el.scrollHeight;
+        this.scrollToBottom();
     }
 
     insertEdit (content: string) {
@@ -208,5 +216,17 @@ export class WebTerm extends Eveit<IWebTermEvents> {
     newLine () {
         this.display.pushContent(this.input.fullValue);
         this.input.clearContent();
+    }
+
+    setHeader (header: string) {
+        this.input.header = header;
+    }
+
+    scrollToBottom () {
+        this.container.el.scrollTop = this.container.el.scrollHeight;
+    }
+
+    focus () {
+        this.input.focus();
     }
 }

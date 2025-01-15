@@ -7,7 +7,7 @@
 
 A Web Terminal UI Lib
 
-[Demo](https://theajack.github.io/web-term-ui) | [Playground](https://theajack.github.io/jsbox?github=theajack.web-term-ui)
+[Demo](https://theajack.github.io/web-term-ui) | [Playground](https://theajack.github.io/jsbox?github=theajack.web-term-ui) | [Version](https://github.com/theajack/web-term-ui/blob/main/dev/version.md)
 
 ## Features
 
@@ -56,14 +56,15 @@ CDN
 
 ```ts
 export interface IWebTermOptions {
-    title?: string,
-    container?: string|HTMLElement,
-    historyMax?: number,
+    title?: string;
+    container?: string | HTMLElement;
+    historyMax?: number;
     storageProvider?: {
-        read: ()=>IPromiseMaybe<string>,
-        write: (history: string)=>IPromiseMaybe<boolean>
-    },
-    getHeader?: IFnMaybe<string>,
+        read: () => IPromiseMaybe<string>;
+        write: (history: string) => IPromiseMaybe<boolean>;
+    };
+    header?: string;
+    padding?: string|number,
 }
 ```
 
@@ -71,14 +72,20 @@ export interface IWebTermOptions {
 
 ```ts
 {
+    title: string;
+    get value(): string;
+    get header(): string;
     clearHistory(): void;
     write(content: string | Dom): void;
     insertEdit(content: string): void;
     replaceEdit(content: string): void;
     pushEdit(content: string): void;
     vi(v?: string): void;
-	clearTerminal(): void;
-	newLine(): void;
+    clearTerminal(): void;
+    newLine(): void;
+    setHeader(header: string): void;
+    scrollToBottom(): void;
+    focus(): void;
 }
 ```
 
@@ -89,6 +96,6 @@ export interface IWebTermEvents {
     'enter': [string],
     'edit-done': [string],
     'edit-cancel': [],
-    'tab': [];
+    'tab': [string];
 }
 ```

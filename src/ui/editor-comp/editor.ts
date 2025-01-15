@@ -7,8 +7,7 @@ import type {Dom} from 'link-dom';
 import {createStore, dom} from 'link-dom';
 import {Styles} from '../style/style';
 import {Eveit} from 'eveit';
-import {handleCompositionEvents, isCtrlPressed, runFnMaybe} from '../../utils';
-import type {IFnMaybe} from '../../types';
+import {handleCompositionEvents, isCtrlPressed} from '../../utils';
 import {onKeyDown, setTabValue} from 'tab-text';
 
 function isMultiByte (char: string) {
@@ -25,7 +24,7 @@ type ILineInfoList = {
 }[];
 
 export interface IEditorOptions {
-    header?: IFnMaybe<string>,
+    header?: string,
     paddingLeft?: number,
     paddingTop?: number,
     size?: 'full' | 'auto',
@@ -54,7 +53,6 @@ export class Editor extends Eveit<{
 
     private paddingTop: number;
     private paddingLeft: number;
-    private headerGetter: IFnMaybe<string>;
 
     store = createStore({
         cx: 0,
@@ -109,20 +107,20 @@ export class Editor extends Eveit<{
         this.MultiCharWidth = this.measureTextWidth('一');
         // console.log('width', this.SingleCharWidth, this.MultiCharWidth);
 
-        this.headerGetter = header;
+        this.header = header;
         this.render();
         this._monitorStart();
     }
 
+
+    header = '';
+
     private _prevHeader = '';
     private _prevHeaderWidth = 0;
-
-    get header () {
-        return runFnMaybe(this.headerGetter);
-    }
     get headerWidth () {
         const v = this.header;
         if (v !== this._prevHeader) {
+            this._prevHeader = v;
             this._prevHeaderWidth = this.measureTextWidth(v);
         }
         return this._prevHeaderWidth;
@@ -171,6 +169,7 @@ export class Editor extends Eveit<{
         this.initEvents();
     }
 
+    private _pasteTimer: any = null;
     private initEvents () {
 
         let isDelPressed = false;
@@ -235,9 +234,13 @@ export class Editor extends Eveit<{
             if (isCursorChangeKey(e)) {
                 isDelPressed = false;
             }
+        }).on('paste', () => {
+            this._pasteTimer = setTimeout(() => {
+                this.relocateCursorPosition();
+            }, 50);
         }).on('input', e => {
             e.preventDefault();
-            // console.log('oninput', this.textarea.value());
+            // console.log('oninput', isDelPressed, this.textarea.value());
             if (isDelPressed) {
                 this.relocateCursorPosition();
             }
@@ -249,6 +252,7 @@ export class Editor extends Eveit<{
             }
             this.emit('input');
         }).on('selectionchange', () => {
+            // console.log('selectionchange');
             if (remove) {
                 remove();
                 remove = null;
@@ -260,6 +264,11 @@ export class Editor extends Eveit<{
             this.cursor.addClass('cursor-focus');
         }).on('blur', () => {
             this.cursor.removeClass('cursor-focus');
+        }).on('cut', () => {
+            const el = this.textarea.el;
+            if (el.selectionStart !== el.selectionEnd) {
+                this.relocateCursorPosition();
+            }
         });
 
         let prevWidth = el.clientWidth;
@@ -270,7 +279,6 @@ export class Editor extends Eveit<{
             }
         });
     }
-
 
     private _countContentHeight (content: string, needPadding = false) {
         return this._countContentSize(content, needPadding).height;
@@ -430,6 +438,7 @@ export class Editor extends Eveit<{
     }
 
     private relocateCursorPosition () {
+        clearTimeout(this._pasteTimer);
         const el = (this.textarea.el as HTMLTextAreaElement);
 
         this.showCursor();
@@ -476,13 +485,22 @@ export class Editor extends Eveit<{
     }
     clearContent (relocate = true) {
         const el = this.textarea.el;
+        const value = el.value;
+        const replace = !value.startsWith(this.header);
+
         const start = this.header.length;
-        el.selectionStart = start;
-        el.selectionEnd = el.value.length + 1;
-        if (start === el.value.length) return;
+
+        el.selectionStart = replace ? 0 : start;
+        el.selectionEnd = value.length + 1;
+        if (start === value.length) return;
         
         // console.log(`clearContent "${el.value}" start=${start} end=${el.value.length} ${el.selectionStart} ${el.selectionEnd}`);
         document.execCommand('delete', false);
+
+        if (replace) {
+            this.insertText(this.header);
+        }
+
         if (relocate)
             this.relocateCursorPosition();
     }

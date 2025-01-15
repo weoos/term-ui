@@ -25,6 +25,7 @@ export class TermEditor extends Eveit<{
         this.editor = new Editor(opts);
         this.container = dom.div.style({
             ...Styles.FullParent,
+            position: 'relative',
             zIndex: 100,
             backgroundColor: '#000',
         }).append(

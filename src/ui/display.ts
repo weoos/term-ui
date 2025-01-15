@@ -8,9 +8,11 @@ import {dom} from 'link-dom';
 import type {IStore} from './store';
 import {addStyle} from './style/style';
 
+export const DisplayGap = 2;
+
 addStyle({
     '.display-item': {
-        'padding': 2,
+        'padding': `${DisplayGap}px 0`,
         wordBreak: 'break-all',
         whiteSpace: 'pre-wrap',
     }
@@ -22,9 +24,7 @@ export class TermDisplay {
         public store: IStore,
         public title: string
     ) {
-        this.container = dom.div.style({
-            padding: '5px 3px 0 3px',
-        }).on('click', e => {
+        this.container = dom.div.on('click', e => {
             e.stopPropagation();
         });
     }
