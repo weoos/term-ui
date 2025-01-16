@@ -10,6 +10,10 @@
 3. 增加setHeaderAPI，调整header逻辑
 4. 增加 scrollToBottom, focus API
 5. 修复偶现的粘贴不会引起光标变化的问题
+6. 增加写值时html和text可选
+7. clearInputHistory、writeBelow、pushBelow、clearBelow API
+8. titleHtml 构造参数
+9. 增加 cursor-change、edit-cursor-change、input 事件
 
 ### 0.0.5-0.0.4
 

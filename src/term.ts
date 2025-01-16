@@ -4,13 +4,14 @@
  * @Description: Coding something
  */
 import {Eveit} from 'eveit';
-import type {IWebTermEvents, IWebTermOptions} from './types';
+import type {IContent, IWebTermEvents, IWebTermOptions} from './types';
 import {TermHistory} from './history';
 import {dom, Dom, mount, createStore} from 'link-dom';
 import {TermDisplay, DisplayGap} from './ui/display';
 import {TermEditor} from './ui/editor';
 import {ContainerClass, renderStyle} from './ui/style/style';
 import {Editor} from './ui/editor-comp/editor';
+import {TermBelow} from './ui/below';
 
 function createDefaultStorageProvider () {
     const KEY = '_web_term_ui_history;';
@@ -35,6 +36,7 @@ export class WebTerm extends Eveit<IWebTermEvents> {
     input: Editor;
     display: TermDisplay;
     editor: TermEditor;
+    below: TermBelow;
 
     private _padding = 0;
 
@@ -44,6 +46,7 @@ export class WebTerm extends Eveit<IWebTermEvents> {
 
     constructor ({
         title = '',
+        titleHtml = true,
         historyMax = 100,
         storageProvider = createDefaultStorageProvider(),
         container,
@@ -56,11 +59,7 @@ export class WebTerm extends Eveit<IWebTermEvents> {
         this.title = title;
         this.history = new TermHistory(historyMax, storageProvider);
 
-        this.editor = new TermEditor(this.store, {
-            mode: 'full',
-            paddingLeft: padding,
-            paddingTop: padding,
-        });
+        this.editor = new TermEditor(this.store, {padding});
         
         this.input = new Editor({
             paddingTop: DisplayGap,
@@ -69,10 +68,11 @@ export class WebTerm extends Eveit<IWebTermEvents> {
             size: 'auto',
             mode: 'inline',
         });
-        this.display = new TermDisplay(this.store, title);
+        this.display = new TermDisplay();
+        this.below = new TermBelow();
 
         if (title) {
-            this.display.pushContent(title);
+            this.display.pushContent(title, titleHtml);
         }
 
         if (!container) {
@@ -100,6 +100,10 @@ export class WebTerm extends Eveit<IWebTermEvents> {
 
     get value () {
         return this.input.value;
+    }
+
+    get beforeValue () {
+        return this.input.beforeValue;
     }
 
     get header () {
@@ -137,6 +141,7 @@ export class WebTerm extends Eveit<IWebTermEvents> {
         });
         this.input.on('input', () => {
             this.history.checkLatest(this.input.value);
+            this.emit('input', this.value, this.input.beforeValue);
         });
 
         this.container.on('click', () => {
@@ -157,6 +162,12 @@ export class WebTerm extends Eveit<IWebTermEvents> {
             hideEditor();
             this.emit('edit-cancel');
         });
+        this.editor.editor.on('cursor-change', data => {
+            this.emit('edit-cursor-change', data);
+        });
+        this.input.on('cursor-change', data => {
+            this.emit('cursor-change', data);
+        });
     }
 
     private render () {
@@ -173,19 +184,20 @@ export class WebTerm extends Eveit<IWebTermEvents> {
                 .append(
                     this.display.container,
                     this.input.container,
+                    this.below.container,
                 ).show(() => !this.store.showEditor),
             this.editor.container
         );
     }
 
-    clearHistory (): void {
+    clearInputHistory (): void {
         this.history.clear();
     }
 
-    write (content: string|Dom) {
-        this.display.pushContent(this.input.fullValue);
+    write (content: IContent, html = true) {
+        this.display.pushContent(this.input.fullValue, html);
         if (content) {
-            this.display.pushContent(content);
+            this.display.pushContent(content, html);
         }
         this.input.clearContent();
         this.scrollToBottom();
@@ -203,9 +215,9 @@ export class WebTerm extends Eveit<IWebTermEvents> {
         this.editor.editor.pushText(content);
     }
 
-    vi (v: string = '') {
+    vi (v: string = '', title = '', html = true) {
         this.store.showEditor = true;
-        this.editor.vi(v);
+        this.editor.vi(v, title, html);
     }
 
     clearTerminal () {
@@ -213,8 +225,8 @@ export class WebTerm extends Eveit<IWebTermEvents> {
         this.input.clearContent();
     }
 
-    newLine () {
-        this.display.pushContent(this.input.fullValue);
+    newLine (html = true) {
+        this.display.pushContent(this.input.fullValue, html);
         this.input.clearContent();
     }
 
@@ -228,5 +240,17 @@ export class WebTerm extends Eveit<IWebTermEvents> {
 
     focus () {
         this.input.focus();
+    }
+
+    writeBelow (content: IContent, html = true) {
+        this.below.write(content, html);
+        this.scrollToBottom();
+    }
+    pushBelow (content: IContent, html = true) {
+        this.below.push(content, html);
+        this.scrollToBottom();
+    }
+    clearBelow () {
+        this.below.clear();
     }
 }

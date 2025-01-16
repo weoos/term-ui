@@ -12,8 +12,9 @@ import {transformContent} from '../utils';
 export const DisplayGap = 2;
 
 addStyle({
-    '.term-display-box > div': {
+    '.term-below-box > div': {
         'padding': `${DisplayGap}px 0`,
+        color: '#ccc',
         wordBreak: 'break-all',
         whiteSpace: 'pre-wrap',
         a: {
@@ -22,17 +23,29 @@ addStyle({
     }
 });
 
-export class TermDisplay {
+export class TermBelow {
     container: Dom;
     constructor () {
-        this.container = dom.div.class('term-display-box').on('click', e => {
+        this.container = dom.div.class('term-below-box').on('click', e => {
             e.stopPropagation();
         });
     }
 
-    pushContent (content: IContent, html: boolean) {
+    write (content: IContent, html: boolean) {
+        const children = this.container.children();
+        if (children.length > 0) {
+            children[children.length - 1].remove();
+        }
+        this.push(content, html);
+    }
+
+    push (content: IContent, html: boolean) {
         this.container.append(
             transformContent(content, html, '\n')
         );
+    }
+
+    clear () {
+        this.container.empty();
     }
 }

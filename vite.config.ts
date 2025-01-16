@@ -11,6 +11,8 @@ import pkg from './package.json';
 import {execSync} from 'child_process';
 import {writeFileSync, copyFileSync, rmdirSync} from 'fs';
 
+const Inline = false;
+
 const {version, ebuild, dependencies = {}, name} = pkg;
 
 const fileName = ebuild.fileName || ebuild.publish.name;
@@ -67,7 +69,15 @@ function geneBuildConfig (isIIFE = false): UserConfig {
                     copyFileSync(`npm/iife/${fullName}`, `npm/${fullName}`);
                     rmdirSync('npm/iife', {recursive: true});
                 } else {
-                    execSync(`npx dts-bundle-generator -o npm/${fileName}.es.min.d.ts src/index.ts`);
+                    execSync([
+                        'npx dts-bundle-generator -o',
+                        `npm/${fileName}.es.min.d.ts`,
+                        'src/index.ts',
+                        '--no-check',
+                        '--no-banner',
+                        '--external-inlines',
+                        Inline ? Object.keys(dependencies).join(' ') : ''
+                    ].join(' '));
                     generatePackage();
                     execSync('vite build -m=sdk_iife');
                 }
@@ -83,8 +93,7 @@ function geneBuildConfig (isIIFE = false): UserConfig {
                 fileName: (format: string) => `${fileName}.${format}.min.js`,
             },
             rollupOptions: {
-                // 不需要
-                external: isIIFE ? [] : Object.keys(dependencies),
+                external: (isIIFE || Inline) ? [] : Object.keys(dependencies),
                 plugins: [
                     babel({
                         exclude: 'node_modules/**',
@@ -105,7 +114,7 @@ function generatePackage () {
 
     writeFileSync('./npm/package.json', JSON.stringify({
         ...ebuild.publish,
-        dependencies,
+        dependencies: Inline ? {} : dependencies,
         'main': `${fileName}.es.min.js`,
         'module': `${fileName}.es.min.js`,
         'unpkg': `${fileName}.iife.min.js`,

@@ -32,9 +32,14 @@ export interface IEditorOptions {
     tab?: string,
 }
 
+export interface ICursorChangeData {
+    x: number, y: number, word: string, wordWidth: number, beforeValue: string, value: string
+}
+
 export class Editor extends Eveit<{
     key: ['Enter'|'ArrowUp'|'ArrowDown'|'Tab'],
-    input: []
+    input: [],
+    'cursor-change': [ICursorChangeData],
 }> {
 
     SingleCharWidth = 9;
@@ -394,6 +399,7 @@ export class Editor extends Eveit<{
         return this.textarea.el.clientWidth - 2 * this.paddingLeft;
     }
 
+    private _prevPos = {x: -1, y: -1};
     private getCursorPosition () {
         const el = this.textarea.el as HTMLTextAreaElement;
         const selectionStart = el.selectionStart;
@@ -420,6 +426,11 @@ export class Editor extends Eveit<{
         if (x + wordWidth > clientWidth) {
             x = 0;
             y += SingleLineHeight;
+        }
+
+        if (this._prevPos.x !== x || this._prevPos.y !== y) {
+            Object.assign(this._prevPos, {x, y});
+            this.emit('cursor-change', {x, y, word: cursorWord, wordWidth, beforeValue: this.beforeValue, value: this.value});
         }
 
         return {

@@ -4,7 +4,8 @@
  * @Description: Coding something
  */
 
-import type {Dom} from 'link-dom';
+import {Dom, dom} from 'link-dom';
+import type {IContent} from './types';
 
 
 export function isMac () {
@@ -26,4 +27,17 @@ export function handleCompositionEvents (dom: Dom) {
         isComposing = false;
     });
     return () => isComposing;
+}
+
+export function transformContent (content: IContent, html = true, tail = ''): Dom {
+    if (content instanceof HTMLElement) {
+        return new Dom(content);
+    } else if (content instanceof Dom) {
+        return content;
+    } else if (typeof content === 'string') {
+        return dom.div[html ? 'html' : 'text'](content + tail) as Dom;
+    } else {
+        return dom.div[html ? 'html' : 'text'](content.toString() + tail) as Dom;
+    }
+
 }

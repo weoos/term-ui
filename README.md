@@ -56,15 +56,16 @@ CDN
 
 ```ts
 export interface IWebTermOptions {
-    title?: string;
-    container?: string | HTMLElement;
-    historyMax?: number;
-    storageProvider?: {
-        read: () => IPromiseMaybe<string>;
-        write: (history: string) => IPromiseMaybe<boolean>;
-    };
-    header?: string;
-    padding?: string|number,
+	title?: string;
+	titleHtml?: boolean;
+	container?: string | HTMLElement;
+	padding?: number;
+	historyMax?: number;
+	storageProvider?: {
+		read: () => IPromiseMaybe<string>;
+		write: (history: string) => IPromiseMaybe<boolean>;
+	};
+	header?: string;
 }
 ```
 
@@ -75,17 +76,20 @@ export interface IWebTermOptions {
     title: string;
     get value(): string;
     get header(): string;
-    clearHistory(): void;
-    write(content: string | Dom): void;
-    insertEdit(content: string): void;
-    replaceEdit(content: string): void;
-    pushEdit(content: string): void;
-    vi(v?: string): void;
-    clearTerminal(): void;
-    newLine(): void;
-    setHeader(header: string): void;
-    scrollToBottom(): void;
-    focus(): void;
+	clearInputHistory(): void;
+	write(content: IContent, html?: boolean): void;
+	insertEdit(content: string): void;
+	replaceEdit(content: string): void;
+	pushEdit(content: string): void;
+	vi(v?: string, title?: string, html?: boolean): void;
+	clearTerminal(): void;
+	newLine(html?: boolean): void;
+	setHeader(header: string): void;
+	scrollToBottom(): void;
+	focus(): void;
+	writeBelow(content: IContent, html?: boolean): void;
+	pushBelow(content: IContent, html?: boolean): void;
+	clearBelow(): void;
 }
 ```
 
@@ -97,5 +101,23 @@ export interface IWebTermEvents {
     'edit-done': [string],
     'edit-cancel': [],
     'tab': [string];
+	"input": [
+		string, // full value
+		string, // before cursor value
+	];
+	"cursor-change": [
+		ICursorChangeData
+	];
+	"edit-cursor-change": [
+		ICursorChangeData
+	];
+}
+interface ICursorChangeData {
+	x: number;
+	y: number;
+	word: string;
+	wordWidth: number;
+	beforeValue: string;
+	value: string;
 }
 ```

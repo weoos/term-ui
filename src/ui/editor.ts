@@ -6,7 +6,6 @@
 import type {Dom} from 'link-dom';
 import {dom} from 'link-dom';
 import type {IStore} from './store';
-import type {IEditorOptions} from './editor-comp/editor';
 import {Editor} from './editor-comp/editor';
 import {Styles} from './style/style';
 import {isCtrlPressed} from '../utils';
@@ -20,17 +19,36 @@ export class TermEditor extends Eveit<{
 
     editor: Editor;
 
-    constructor (store: IStore, opts?: IEditorOptions) {
+    title: Dom;
+
+    constructor (store: IStore, {padding}: {
+        padding: number,
+    }) {
         super();
-        this.editor = new Editor(opts);
+
+        this.editor = new Editor({
+            mode: 'full',
+            paddingLeft: 0,
+            paddingTop: 0
+        });
+
         this.container = dom.div.style({
             ...Styles.FullParent,
+            padding,
             position: 'relative',
             zIndex: 100,
             backgroundColor: '#000',
+            flexDirection: 'column',
         }).append(
-            this.editor.container,
-        ).show(() => store.showEditor);
+            this.title = dom.div.text('').style({
+                color: '#aaa',
+            }),
+            this.editor.container.style({
+                flex: '1',
+                height: 'auto',
+
+            }),
+        ).show(() => store.showEditor, 'flex');
 
         this.container.on('click', e => {
             e.stopPropagation();
@@ -50,8 +68,12 @@ export class TermEditor extends Eveit<{
         });
     }
 
-    vi (v: string) {
+    vi (v: string, title = '', html = true) {
         this.editor.textarea.el.focus();
         this.editor.replaceText(v);
+
+        this.title.style({
+            paddingBottom: title ? '5px' : 0,
+        })[html ? 'html' : 'text'](title);
     }
 }

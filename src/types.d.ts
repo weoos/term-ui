@@ -1,3 +1,6 @@
+import type {Dom} from 'link-dom';
+import type {ICursorChangeData} from './ui/editor-comp/editor';
+
 /*
  * @Author: chenzhongsheng
  * @Date: 2024-12-28 23:29:02
@@ -10,10 +13,14 @@ export interface IWebTermEvents {
     'tab': [string],
     'edit-done': [string],
     'edit-cancel': [],
+    'input': [string, string],
+    'cursor-change': [ICursorChangeData],
+    'edit-cursor-change': [ICursorChangeData],
 }
 
 export interface IWebTermOptions {
     title?: string,
+    titleHtml?: boolean,
     container?: string|HTMLElement,
     padding?: number,
     historyMax?: number,
@@ -23,3 +30,5 @@ export interface IWebTermOptions {
     },
     header?: string,
 }
+
+export type IContent = string|number|boolean|Dom|HTMLElement;
