@@ -3,6 +3,17 @@
  * @Date: 2025-01-14 23:54:49
  * @Description: Coding something
 -->
+### 0.0.8 todo
+
+1. 自定义主题支持
+2. 自定义插件支持
+
+### 0.0.7
+
+1. 修复选中到头部时，删除无效的问题
+2. 增加theme参数，支持黑白两种模式，调整padding参数
+3. 增加 setTheme Api
+
 ### 0.0.6
 
 1. 调整padding，使得可以共用container padding

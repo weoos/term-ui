@@ -16,7 +16,7 @@ function isMultiByte (char: string) {
     return code >= 0x80;
 }
 
-const SingleLineHeight = 17;
+const SingleLineHeight = 16;
 
 type ILineInfoList = {
     content: string,
@@ -96,7 +96,7 @@ export class Editor extends Eveit<{
         size = 'full',
         mode = 'inline',
         tab = '  ',
-    }: IEditorOptions = {}) {
+    }: IEditorOptions) {
         super();
         this.size = size;
         this.mode = mode;
@@ -106,7 +106,7 @@ export class Editor extends Eveit<{
 
         const canvas = dom.canvas;
         this.ctx = (canvas.el as HTMLCanvasElement).getContext('2d')!;
-        this.ctx.font = '15px courier-new, courier, monospace';
+        this.ctx.font = '14px courier-new, courier, monospace';
 
         this.SingleCharWidth = this.measureTextWidth('a');
         this.MultiCharWidth = this.measureTextWidth('一');
@@ -156,7 +156,6 @@ export class Editor extends Eveit<{
                 padding: `${this.paddingTop}px ${this.paddingLeft}px`,
                 backgroundColor: 'transparent',
                 border: 'none',
-                color: '#fff',
                 outline: 'none',
                 resize: 'none',
                 zIndex: '1',
@@ -222,8 +221,8 @@ export class Editor extends Eveit<{
             }
             if (e.code === 'Backspace') {
                 // 阻止删除了head
-                const {x, y} = this.getCursorPosition();
-                if (y === 0 && x === this.headerWidth) {
+                const {x, y, isRange} = this.getCursorPosition();
+                if (y === 0 && x <= this.headerWidth && !isRange) {
                     e.preventDefault();
                 }
             }
@@ -403,6 +402,7 @@ export class Editor extends Eveit<{
     private getCursorPosition () {
         const el = this.textarea.el as HTMLTextAreaElement;
         const selectionStart = el.selectionStart;
+        const selectionEnd = el.selectionEnd;
         //
         const cursorBefore = el.value.substring(0, selectionStart);
         const clientWidth = this._getLineBoxWidth();
@@ -436,6 +436,7 @@ export class Editor extends Eveit<{
         return {
             x,
             y,
+            isRange: selectionStart != selectionEnd,
             word: cursorWord,
             wordWidth,
         };

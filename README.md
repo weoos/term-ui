@@ -9,13 +9,17 @@ A Web Terminal UI Lib
 
 [Demo](https://theajack.github.io/web-term-ui) | [Playground](https://theajack.github.io/jsbox?github=theajack.web-term-ui) | [Version](https://github.com/theajack/web-term-ui/blob/main/dev/version.md)
 
+Xterm.js is Good, but it is a nightmare when building pure front-end terminal UI, So You need This Lib.
+
 ## Features
 
 1. Support block cursor style
 2. Support inline wrap
-3. Support Chinese Block style
+3. Support Multiple-length characters
 4. Support history record
 5. Support Custom storageProvider
+6. Support Dark/Light Mode
+7. Support text Editor
 
 ## Usage
 
@@ -73,9 +77,12 @@ export interface IWebTermOptions {
 
 ```ts
 {
+	theme: "dark" | "light";
     title: string;
     get value(): string;
     get header(): string;
+	setTheme(theme: "light" | "dark"): void;
+	setColor(opt: Pick<IWebTermStyle, "background" | "color">): void;
 	clearInputHistory(): void;
 	write(content: IContent, html?: boolean): void;
 	insertEdit(content: string): void;

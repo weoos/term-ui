@@ -10,6 +10,7 @@ import {Editor} from './editor-comp/editor';
 import {Styles} from './style/style';
 import {isCtrlPressed} from '../utils';
 import {Eveit} from 'eveit';
+import type {IWebTermStyle} from 'src/types';
 
 export class TermEditor extends Eveit<{
     'edit-done': [string],
@@ -21,32 +22,26 @@ export class TermEditor extends Eveit<{
 
     title: Dom;
 
-    constructor (store: IStore, {padding}: {
-        padding: number,
-    }) {
+    constructor (store: IStore, style: IWebTermStyle) {
         super();
 
         this.editor = new Editor({
             mode: 'full',
             paddingLeft: 0,
-            paddingTop: 0
+            paddingTop: 0,
         });
 
         this.container = dom.div.style({
             ...Styles.FullParent,
-            padding,
+            padding: style.padding,
             position: 'relative',
             zIndex: 100,
-            backgroundColor: '#000',
             flexDirection: 'column',
         }).append(
-            this.title = dom.div.text('').style({
-                color: '#aaa',
-            }),
+            this.title = dom.div.class('term-editor-title').text(''),
             this.editor.container.style({
                 flex: '1',
                 height: 'auto',
-
             }),
         ).show(() => store.showEditor, 'flex');
 

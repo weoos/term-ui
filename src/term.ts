@@ -4,12 +4,12 @@
  * @Description: Coding something
  */
 import {Eveit} from 'eveit';
-import type {IContent, IWebTermEvents, IWebTermOptions} from './types';
+import type {IContent, IWebTermEvents, IWebTermOptions, IWebTermStyle} from './types';
 import {TermHistory} from './history';
 import {dom, Dom, mount, createStore} from 'link-dom';
-import {TermDisplay, DisplayGap} from './ui/display';
+import {TermDisplay} from './ui/display';
 import {TermEditor} from './ui/editor';
-import {ContainerClass, renderStyle} from './ui/style/style';
+import {ContainerClass, DisplayGap} from './ui/style/style';
 import {Editor} from './ui/editor-comp/editor';
 import {TermBelow} from './ui/below';
 
@@ -38,11 +38,17 @@ export class WebTerm extends Eveit<IWebTermEvents> {
     editor: TermEditor;
     below: TermBelow;
 
-    private _padding = 0;
+    style: Required<IWebTermStyle> = {
+        padding: 5,
+        color: '#fff', // 默认
+        background: '#000'
+    };
 
     store = createStore({
         showEditor: false,
     });
+
+    theme: 'dark'|'light' = 'dark';
 
     constructor ({
         title = '',
@@ -51,15 +57,15 @@ export class WebTerm extends Eveit<IWebTermEvents> {
         storageProvider = createDefaultStorageProvider(),
         container,
         header,
-        padding = 5,
+        theme,
+        style = {}
     }: IWebTermOptions = {}) {
         super();
-        renderStyle();
-        this._padding = padding;
         this.title = title;
         this.history = new TermHistory(historyMax, storageProvider);
+        Object.assign(this.style, style);
 
-        this.editor = new TermEditor(this.store, {padding});
+        this.editor = new TermEditor(this.store, {padding: this.style.padding});
         
         this.input = new Editor({
             paddingTop: DisplayGap,
@@ -95,6 +101,13 @@ export class WebTerm extends Eveit<IWebTermEvents> {
             this.container.addClass(ContainerClass);
         }
         this.initEvents();
+
+        if (theme) {
+            this.setTheme(theme);
+        } else {
+            this.setColor(style);
+        }
+
         this.render();
     }
 
@@ -172,15 +185,9 @@ export class WebTerm extends Eveit<IWebTermEvents> {
 
     private render () {
         this.container.style({
-            cursor: 'text',
-            backgroundColor: '#000',
-            color: '#fff',
-            fontSize: '16px',
-            lineHeight: '20px',
-            fontFamily: 'Menlo, Monaco, "Courier New", monospace',
             overflow: () => this.store.showEditor ? 'hidden' : 'auto',
         }).append(
-            this.mainContainer = dom.div.style('padding', this._padding)
+            this.mainContainer = dom.div.style('padding', this.style.padding)
                 .append(
                     this.display.container,
                     this.input.container,
@@ -188,6 +195,23 @@ export class WebTerm extends Eveit<IWebTermEvents> {
                 ).show(() => !this.store.showEditor),
             this.editor.container
         );
+    }
+    setTheme (theme: 'light'|'dark') {
+        const white = '#fff';
+        const dark = '#000';
+        const isLight = (theme === 'light');
+        this.theme = theme;
+        this.setColor({
+            background: isLight ? white : dark,
+            color: isLight ? dark : white,
+        });
+    }
+    setColor (opt: Pick<IWebTermStyle, 'background'|'color'>) {
+        Object.assign(this.style, opt);
+        this.container.style({
+            '--background': this.style.background,
+            '--color': this.style.color,
+        });
     }
 
     clearInputHistory (): void {
@@ -226,8 +250,7 @@ export class WebTerm extends Eveit<IWebTermEvents> {
     }
 
     newLine (html = true) {
-        this.display.pushContent(this.input.fullValue, html);
-        this.input.clearContent();
+        this.write('', html);
     }
 
     setHeader (header: string) {

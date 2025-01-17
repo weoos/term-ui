@@ -10,6 +10,7 @@ import {resolve} from 'path';
 import pkg from './package.json';
 import {execSync} from 'child_process';
 import {writeFileSync, copyFileSync, rmdirSync} from 'fs';
+import cssInjectedByJsPlugin from 'vite-plugin-css-injected-by-js';
 
 const Inline = false;
 
@@ -61,28 +62,29 @@ function geneBuildAppConfig (): UserConfig {
 
 function geneBuildConfig (isIIFE = false): UserConfig {
     return {
-        plugins: [{
-            name: 'generate-npm-stuff',
-            writeBundle () {
-                if (isIIFE) {
-                    const fullName = `${fileName}.iife.min.js`;
-                    copyFileSync(`npm/iife/${fullName}`, `npm/${fullName}`);
-                    rmdirSync('npm/iife', {recursive: true});
-                } else {
-                    execSync([
-                        'npx dts-bundle-generator -o',
-                        `npm/${fileName}.es.min.d.ts`,
-                        'src/index.ts',
-                        '--no-check',
-                        '--no-banner',
-                        '--external-inlines',
-                        Inline ? Object.keys(dependencies).join(' ') : ''
-                    ].join(' '));
-                    generatePackage();
-                    execSync('vite build -m=sdk_iife');
+        plugins: [
+            cssInjectedByJsPlugin(), {
+                name: 'generate-npm-stuff',
+                writeBundle () {
+                    if (isIIFE) {
+                        const fullName = `${fileName}.iife.min.js`;
+                        copyFileSync(`npm/iife/${fullName}`, `npm/${fullName}`);
+                        rmdirSync('npm/iife', {recursive: true});
+                    } else {
+                        execSync([
+                            'npx dts-bundle-generator -o',
+                            `npm/${fileName}.es.min.d.ts`,
+                            'src/index.ts',
+                            '--no-check',
+                            '--no-banner',
+                            '--external-inlines',
+                            Inline ? Object.keys(dependencies).join(' ') : ''
+                        ].join(' '));
+                        generatePackage();
+                        execSync('vite build -m=sdk_iife');
+                    }
                 }
-            }
-        }],
+            }],
         
         build: {
             minify: true,

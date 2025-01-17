@@ -5,22 +5,9 @@
  */
 import type {Dom} from 'link-dom';
 import {dom} from 'link-dom';
-import {addStyle} from './style/style';
 import type {IContent} from '../types';
 import {transformContent} from '../utils';
 
-export const DisplayGap = 2;
-
-addStyle({
-    '.term-display-box > div': {
-        'padding': `${DisplayGap}px 0`,
-        wordBreak: 'break-all',
-        whiteSpace: 'pre-wrap',
-        a: {
-            color: '#ccc',
-        }
-    }
-});
 
 export class TermDisplay {
     container: Dom;

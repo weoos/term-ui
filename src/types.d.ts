@@ -18,17 +18,24 @@ export interface IWebTermEvents {
     'edit-cursor-change': [ICursorChangeData],
 }
 
+export interface IWebTermStyle {
+    padding?: number,
+    color?: string,
+    background?: string,
+}
+
 export interface IWebTermOptions {
     title?: string,
     titleHtml?: boolean,
     container?: string|HTMLElement,
-    padding?: number,
     historyMax?: number,
     storageProvider?: {
         read: ()=>IPromiseMaybe<string>,
         write: (history: string)=>IPromiseMaybe<boolean>
     },
     header?: string,
+    theme?: 'dark'|'light',
+    style?: IWebTermStyle,
 }
 
 export type IContent = string|number|boolean|Dom|HTMLElement;
