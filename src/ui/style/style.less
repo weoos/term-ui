@@ -1,10 +1,10 @@
 .style-text {
     // font-family: courier-new, courier, monospace;
     font-family: Menlo, Monaco, "Courier New", monospace;
-    font-size: 14px;
+    font-size: var(--font-size);
     font-kerning: none;
     white-space: pre;
-    line-height: 16px;
+    line-height: var(--line-height);
     box-sizing: border-box;
 }
 
@@ -50,7 +50,7 @@
 .editor-cursor {
     position: absolute;
     z-index: 2;
-    height: 16px;
+    height: var(--line-height);
     background-color: var(--background);
     color: var(--color);
     &.cursor-focus {

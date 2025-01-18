@@ -3,10 +3,15 @@
  * @Date: 2025-01-14 23:54:49
  * @Description: Coding something
 -->
-### 0.0.8 todo
+### todo
 
 1. 自定义主题支持
 2. 自定义插件支持
+
+### 0.0.8
+
+1. 增加fontSize支持
+2. 增加setFontSize,resize API
 
 ### 0.0.7
 

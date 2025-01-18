@@ -29,6 +29,7 @@ export class TermEditor extends Eveit<{
             mode: 'full',
             paddingLeft: 0,
             paddingTop: 0,
+            fontSize: style.fontSize,
         });
 
         this.container = dom.div.style({

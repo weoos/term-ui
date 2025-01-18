@@ -22,6 +22,7 @@ export interface IWebTermStyle {
     padding?: number,
     color?: string,
     background?: string,
+    fontSize?: number,
 }
 
 export interface IWebTermOptions {

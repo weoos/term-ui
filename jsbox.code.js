@@ -35,6 +35,10 @@ term.on('enter', v => {
         const target = term.theme === 'dark' ? 'light' : 'dark';
         term.setTheme(target);
         term.write(\`Set theme to "\${target}"\`);
+    } else if (v.startsWith('font')) {
+        const size = parseInt(v.replace('font', '').trim());
+        term.setFontSize(size);
+        term.write(\`Set FontSize = "$\{size}"\`);
     } else {
         term.write(\`Exec "\${v}"\`);
     }
@@ -52,6 +56,7 @@ function writeHelp () {
         'progress: Mock Progress Bar',
         'header  : "header <name>" to Set Header',
         'theme   : Toggle theme between dark and light',
+        'font    : "font <size>" to set font-size'
     ].join('\\n'), false);
 }
 function mockProgress () {

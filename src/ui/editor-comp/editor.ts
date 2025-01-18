@@ -9,14 +9,13 @@ import {Styles} from '../style/style';
 import {Eveit} from 'eveit';
 import {handleCompositionEvents, isCtrlPressed} from '../../utils';
 import {onKeyDown, setTabValue} from 'tab-text';
+import {DefaultStyle} from '../constant/constant';
 
 function isMultiByte (char: string) {
     if (!char) return false;
     const code = char.charCodeAt(0);
     return code >= 0x80;
 }
-
-const SingleLineHeight = 16;
 
 type ILineInfoList = {
     content: string,
@@ -28,6 +27,7 @@ export interface IEditorOptions {
     paddingLeft?: number,
     paddingTop?: number,
     size?: 'full' | 'auto',
+    fontSize?: number;
     mode?: 'full' | 'inline',
     tab?: string,
 }
@@ -44,6 +44,8 @@ export class Editor extends Eveit<{
 
     SingleCharWidth = 9;
     MultiCharWidth = 15;
+    fontSize = 0;
+    lineHeight = 0;
     container: Dom;
 
     textarea: Dom<HTMLTextAreaElement>;
@@ -64,6 +66,10 @@ export class Editor extends Eveit<{
         cy: 0,
     });
 
+    setFontSize (v: number) {
+        this.fontSize = v;
+        this.lineHeight = v + 2;
+    }
 
     private size: IEditorOptions['size'];
     private mode: IEditorOptions['mode'];
@@ -96,8 +102,10 @@ export class Editor extends Eveit<{
         size = 'full',
         mode = 'inline',
         tab = '  ',
+        fontSize = DefaultStyle.fontSize,
     }: IEditorOptions) {
         super();
+        this.setFontSize(fontSize);
         this.size = size;
         this.mode = mode;
         setTabValue(tab);
@@ -106,10 +114,8 @@ export class Editor extends Eveit<{
 
         const canvas = dom.canvas;
         this.ctx = (canvas.el as HTMLCanvasElement).getContext('2d')!;
-        this.ctx.font = '14px courier-new, courier, monospace';
 
-        this.SingleCharWidth = this.measureTextWidth('a');
-        this.MultiCharWidth = this.measureTextWidth('一');
+        this.resize(true);
         // console.log('width', this.SingleCharWidth, this.MultiCharWidth);
 
         this.header = header;
@@ -124,7 +130,7 @@ export class Editor extends Eveit<{
     private _prevHeaderWidth = 0;
     get headerWidth () {
         const v = this.header;
-        if (v !== this._prevHeader) {
+        if (v !== this._prevHeader || this._prevHeaderWidth < 0) {
             this._prevHeader = v;
             this._prevHeaderWidth = this.measureTextWidth(v);
         }
@@ -145,7 +151,7 @@ export class Editor extends Eveit<{
         const isFull = this.size === 'full';
         this.container = dom.div.style({
             position: 'relative',
-            height: isFull ? '100%' : `${SingleLineHeight + 2 * this.paddingTop}px`,
+            height: isFull ? '100%' : `${this.lineHeight + 2 * this.paddingTop}px`,
         }).append(
             this.cursor = dom.div.class('editor-cursor').append(
                 dom.div.class('editor-cursor-border'),
@@ -296,7 +302,7 @@ export class Editor extends Eveit<{
         let height = 0;
         const linesInfo: ILineInfoList[] = lines.map(line => {
             const list = this.countSingleLineInfo(line);
-            height += list.length * SingleLineHeight;
+            height += list.length * this.lineHeight;
             return list;
         });
         // console.log('linesInfo', JSON.stringify(linesInfo));
@@ -414,18 +420,18 @@ export class Editor extends Eveit<{
         // 考虑换行
         if (this.wrapLine) {
             const list = this._countContentSize(cursorBefore);
-            y = list.height - SingleLineHeight;
+            y = list.height - this.lineHeight;
             x = list.lines.pop()?.pop()?.width || 0;
         } else {
             x = this.measureTextWidth(cursorBefore);
-            y = (cursorBefore.split('\n').length - 1) * SingleLineHeight;
+            y = (cursorBefore.split('\n').length - 1) * this.lineHeight;
         }
 
         const wordWidth = isMultiByte(cursorWord) ? this.MultiCharWidth : this.SingleCharWidth;
 
         if (x + wordWidth > clientWidth) {
             x = 0;
-            y += SingleLineHeight;
+            y += this.lineHeight;
         }
 
         if (this._prevPos.x !== x || this._prevPos.y !== y) {
@@ -520,5 +526,19 @@ export class Editor extends Eveit<{
         const el = this.textarea.el;
         el.selectionStart = el.selectionEnd = this.header.length;
         // (this.textarea.el as HTMLTextAreaElement).setSelectionRange(0, 0);
+    }
+
+    resize (fromInit = false) {
+        this.ctx.font = `${this.fontSize}px Menlo, Monaco, "Courier New", monospace`;
+        this.SingleCharWidth = this.measureTextWidth('a');
+        this.MultiCharWidth = this.measureTextWidth('一');
+        if (fromInit) return;
+        this._prevHeaderWidth = -1;
+
+        const isFull = this.size === 'full';
+        if (!isFull) {
+            this.container.style('height', `${this.lineHeight + 2 * this.paddingTop}px`);
+        }
+        this.relocateCursorPosition();
     }
 }

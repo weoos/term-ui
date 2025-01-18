@@ -12,6 +12,7 @@ import {TermEditor} from './ui/editor';
 import {ContainerClass, DisplayGap} from './ui/style/style';
 import {Editor} from './ui/editor-comp/editor';
 import {TermBelow} from './ui/below';
+import {DefaultStyle} from './ui/constant/constant';
 
 function createDefaultStorageProvider () {
     const KEY = '_web_term_ui_history;';
@@ -39,9 +40,7 @@ export class WebTerm extends Eveit<IWebTermEvents> {
     below: TermBelow;
 
     style: Required<IWebTermStyle> = {
-        padding: 5,
-        color: '#fff', // 默认
-        background: '#000'
+        ...DefaultStyle,
     };
 
     store = createStore({
@@ -65,7 +64,7 @@ export class WebTerm extends Eveit<IWebTermEvents> {
         this.history = new TermHistory(historyMax, storageProvider);
         Object.assign(this.style, style);
 
-        this.editor = new TermEditor(this.store, {padding: this.style.padding});
+        this.editor = new TermEditor(this.store, this.style);
         
         this.input = new Editor({
             paddingTop: DisplayGap,
@@ -73,6 +72,7 @@ export class WebTerm extends Eveit<IWebTermEvents> {
             header,
             size: 'auto',
             mode: 'inline',
+            fontSize: this.style.fontSize,
         });
         this.display = new TermDisplay();
         this.below = new TermBelow();
@@ -107,6 +107,7 @@ export class WebTerm extends Eveit<IWebTermEvents> {
         } else {
             this.setColor(style);
         }
+        this._setFontSize(this.style.fontSize);
 
         this.render();
     }
@@ -214,6 +215,26 @@ export class WebTerm extends Eveit<IWebTermEvents> {
         });
     }
 
+    private _setFontSize (size: number) {
+        this.style.fontSize = size;
+        const lineHeight = size + 2;
+        this.container.style({
+            '--font-size': size,
+            '--line-height': lineHeight,
+        });
+    }
+
+    get fontSize () {
+        return this.style.fontSize;
+    }
+
+    setFontSize (size: number) {
+        this._setFontSize(size);
+        this.editor.editor.setFontSize(size);
+        this.input.setFontSize(size);
+        this.resize();
+    }
+
     clearInputHistory (): void {
         this.history.clear();
     }
@@ -275,5 +296,10 @@ export class WebTerm extends Eveit<IWebTermEvents> {
     }
     clearBelow () {
         this.below.clear();
+    }
+
+    resize () {
+        this.editor.editor.resize();
+        this.input.resize();
     }
 }

@@ -47,8 +47,8 @@ devDependencies:
     specifier: ^4.2.1
     version: registry.npmmirror.com/less@4.2.1
   light-hl:
-    specifier: ^0.0.2
-    version: registry.npmmirror.com/light-hl@0.0.2
+    specifier: ^0.0.3
+    version: registry.npmmirror.com/light-hl@0.0.3
   terser:
     specifier: ^5.16.8
     version: registry.npmmirror.com/terser@5.31.6
@@ -3220,10 +3220,10 @@ packages:
       type-check: registry.npmmirror.com/type-check@0.4.0
     dev: true
 
-  registry.npmmirror.com/light-hl@0.0.2:
-    resolution: {integrity: sha512-ITNGVD0NYfbLLpUQTyM5Dfj4HPQOkPcDjs2UaKs0+vRm9nlhb9PUp3CSWJaMWeaduaSwPwFIJdmYJpcirklAyA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/light-hl/-/light-hl-0.0.2.tgz}
+  registry.npmmirror.com/light-hl@0.0.3:
+    resolution: {integrity: sha512-8xldo25EK/mfc0tlUnVVqIdw8P98xDUR0Lbe/ZHOoH6NIYAhFqoMVc05LaUofAL2px76Wy+x5fWsyCnbib9ZKA==, registry: https://registry.npm.taobao.org/, tarball: https://registry.npmmirror.com/light-hl/-/light-hl-0.0.3.tgz}
     name: light-hl
-    version: 0.0.2
+    version: 0.0.3
     dependencies:
       link-dom: registry.npmmirror.com/link-dom@0.0.7
     dev: true
