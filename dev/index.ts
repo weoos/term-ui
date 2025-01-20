@@ -12,7 +12,11 @@ const term = new WebTerm({
     container: '#container',
     header: '/ admin$ ',
     // theme: 'light',
-    style: {padding: 10}
+    style: {
+        padding: 10,
+        selectionBackground: 'green',
+        selectionColor: 'red'
+    }
 });
 term.on('enter', v => {
     if (!v) {

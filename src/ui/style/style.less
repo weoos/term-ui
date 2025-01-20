@@ -32,8 +32,8 @@
         cursor: pointer;
     }
     ::selection {
-        background-color: var(--color);
-        color: var(--background);
+        background-color: var(--selection-bg);
+        color: var(--selection);
     }
 }
 
@@ -54,12 +54,12 @@
     background-color: var(--background);
     color: var(--color);
     &.cursor-focus {
-        background-color: var(--color);
-        color: var(--background);
+        background-color: var(--selection-bg);
+        color: var(--selection);
     }
     .editor-cursor-border {
         .full-parent;
-        border: 1px solid var(--color);
+        border: 1px solid var(--selection-bg);
     }
     .editor-cursor-text {
         .full-parent;

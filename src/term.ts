@@ -205,13 +205,17 @@ export class WebTerm extends Eveit<IWebTermEvents> {
         this.setColor({
             background: isLight ? white : dark,
             color: isLight ? dark : white,
+            selectionBackground: isLight ? dark : white,
+            selectionColor: isLight ? white : dark,
         });
     }
-    setColor (opt: Pick<IWebTermStyle, 'background'|'color'>) {
+    setColor (opt: Pick<IWebTermStyle, 'background'|'color'|'selectionBackground'|'selectionColor'>) {
         Object.assign(this.style, opt);
         this.container.style({
             '--background': this.style.background,
             '--color': this.style.color,
+            '--selection': this.style.selectionColor,
+            '--selection-bg': this.style.selectionBackground,
         });
     }
 

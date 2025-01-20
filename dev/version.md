@@ -8,6 +8,12 @@
 1. 自定义主题支持
 2. 自定义插件支持
 
+
+### 0.0.9
+
+1. 支持 selectionBackground，selectionColor
+
+
 ### 0.0.8
 
 1. 增加fontSize支持

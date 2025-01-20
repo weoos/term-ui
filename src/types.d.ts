@@ -22,6 +22,8 @@ export interface IWebTermStyle {
     padding?: number,
     color?: string,
     background?: string,
+    selectionColor?: string,
+    selectionBackground?: string
     fontSize?: number,
 }
 

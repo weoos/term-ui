@@ -7,5 +7,7 @@ export const DefaultStyle = {
     padding: 5,
     fontSize: 14,
     color: '#fff', // 默认
-    background: '#000'
+    background: '#000',
+    selectionBackground: '#fff',
+    selectionColor: '#000',
 };
