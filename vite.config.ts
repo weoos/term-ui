@@ -53,7 +53,7 @@ function geneDevConfig (): UserConfig {
 
 function geneBuildAppConfig (): UserConfig {
     return {
-        base: `/${name}`,
+        base: `/term-ui`,
         build: {
             outDir: './docs'
         }
