@@ -3,20 +3,15 @@
  * @Date: 2024-08-12 17:51:34
  * @Description: Coding something
  */
-
 import {HighLight} from 'light-hl';
-import {WebTerm} from '../src/index';
-// import {WebTerm} from '../npm';
+// import {WebTerm} from '../src/index';
+import {WebTerm} from '../npm';
 const term = new WebTerm({
     title: 'This is a Demo. Type "help" to get Help.\n',
     container: '#container',
     header: '/ admin$ ',
     // theme: 'light',
-    style: {
-        padding: 10,
-        selectionBackground: 'green',
-        selectionColor: 'red'
-    }
+    style: {padding: 10}
 });
 term.on('enter', v => {
     if (!v) {

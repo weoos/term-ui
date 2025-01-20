@@ -3,11 +3,11 @@
  * @Date: 2023-05-09 22:31:06
  * @Description: Coding something
 -->
-# [WebTerm UI](https://github.com/theajack/web-term-ui)
+# [WebTerm UI](https://github.com/weoos/term-ui)
 
 A Web Terminal UI Lib
 
-[Demo](https://theajack.github.io/web-term-ui) | [Playground](https://theajack.github.io/jsbox?github=theajack.web-term-ui) | [Version](https://github.com/theajack/web-term-ui/blob/main/dev/version.md)
+[Demo](https://weoos.github.io/term-ui) | [Playground](https://theajack.github.io/jsbox?github=weoos.term-ui) | [Version](https://github.com/weoos/term-ui/blob/main/dev/version.md)
 
 Xterm.js is Good, but it is a nightmare when building pure front-end terminal UI, So You need This Lib.
 
