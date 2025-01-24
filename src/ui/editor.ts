@@ -64,7 +64,7 @@ export class TermEditor extends Eveit<{
         });
     }
 
-    vi (v: string, title = '', html = true) {
+    vi (v: string, {title = '', html = true}: {title?:string, html?: boolean} = {}) {
         this.editor.textarea.el.focus();
         this.editor.replaceText(v);
 

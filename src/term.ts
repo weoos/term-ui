@@ -13,6 +13,7 @@ import {ContainerClass, DisplayGap} from './ui/style/style';
 import {Editor} from './ui/editor-comp/editor';
 import {TermBelow} from './ui/below';
 import {DefaultStyle} from './ui/constant/constant';
+import {parseCommand} from './utils';
 
 function createDefaultStorageProvider () {
     const KEY = '_web_term_ui_history;';
@@ -49,6 +50,8 @@ export class WebTerm extends Eveit<IWebTermEvents> {
 
     theme: 'dark'|'light' = 'dark';
 
+    private _parseCommand: boolean;
+
     constructor ({
         title = '',
         titleHtml = true,
@@ -57,9 +60,11 @@ export class WebTerm extends Eveit<IWebTermEvents> {
         container,
         header,
         theme,
-        style = {}
+        style = {},
+        parseCommand = true,
     }: IWebTermOptions = {}) {
         super();
+        this._parseCommand = parseCommand;
         this.title = title;
         this.history = new TermHistory(historyMax, storageProvider);
         Object.assign(this.style, style);
@@ -132,6 +137,10 @@ export class WebTerm extends Eveit<IWebTermEvents> {
                     const value = this.input.value;
                     if (value) { this.history.push(value); }
                     this.emit('enter', value);
+                    if (this._parseCommand) {
+                        const commands = parseCommand(value);
+                        this.emit('command', commands[0], commands);
+                    }
                 }; break;
                 case 'ArrowDown': {
                     const dv = this.history.down();
@@ -243,12 +252,15 @@ export class WebTerm extends Eveit<IWebTermEvents> {
         this.history.clear();
     }
 
-    write (content: IContent, html = true) {
+    write (content: IContent, {
+        html = true,
+        clear = true,
+    }: {html?: boolean, clear?: boolean} = {}) {
         this.display.pushContent(this.input.fullValue, html);
         if (content) {
             this.display.pushContent(content, html);
         }
-        this.input.clearContent();
+        if (clear) this.input.clearContent();
         this.scrollToBottom();
     }
 
@@ -260,13 +272,20 @@ export class WebTerm extends Eveit<IWebTermEvents> {
         this.editor.editor.replaceText(content);
     }
 
+    setCursorPos (index: number) {
+        this.input.setCursorPos(index);
+    }
+
     pushEdit (content: string) {
         this.editor.editor.pushText(content);
     }
 
-    vi (v: string = '', title = '', html = true) {
+    vi (
+        v: string = '',
+        {title = '', html = true}: {title?:string, html?: boolean} = {}
+    ) {
         this.store.showEditor = true;
-        this.editor.vi(v, title, html);
+        this.editor.vi(v, {title, html});
     }
 
     clearTerminal () {
@@ -275,7 +294,7 @@ export class WebTerm extends Eveit<IWebTermEvents> {
     }
 
     newLine (html = true) {
-        this.write('', html);
+        this.write('', {html});
     }
 
     setHeader (header: string) {
@@ -305,5 +324,9 @@ export class WebTerm extends Eveit<IWebTermEvents> {
     resize () {
         this.editor.editor.resize();
         this.input.resize();
+    }
+
+    parseCommand (v: string) {
+        return parseCommand(v);
     }
 }

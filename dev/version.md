@@ -9,6 +9,14 @@
 2. 自定义插件支持
 
 
+### 0.0.11
+
+- add parseCommand util
+- add setCursorPos api
+- modify Some api options
+
+### 0.0.10
+
 ### 0.0.9
 
 1. 支持 selectionBackground，selectionColor

@@ -17,7 +17,7 @@ term.on('enter', v => {
     if (!v) {
         term.newLine();
     } else if (v === 'vi' || v.startsWith('vi ')) {
-        term.vi('test\n11', `${v.substring(3)} "Ctrl/Cmd + s" to Save, "Esc" to Exit`);
+        term.vi('test\n11', {title: `${v.substring(3)} "Ctrl/Cmd + s" to Save, "Esc" to Exit`});
     } else if (v === 'clear') {
         term.clearTerminal();
     } else if (v === 'help') {
@@ -36,7 +36,7 @@ term.on('enter', v => {
         term.setFontSize(size);
         term.write(`Set FontSize = "${size}"`);
     } else {
-        term.write(`Exec "${v}"`);
+        term.write(`Exec "${v}"`, {clear: false});
     }
 });
 term.on('edit-done', v => {
@@ -53,7 +53,7 @@ function writeHelp () {
         'header  : "header <name>" to Set Header',
         'theme   : Toggle theme between dark and light',
         'font    : "font <size>" to set font-size'
-    ].join('\n'), false);
+    ].join('\n'), {html: false});
 }
 function mockProgress () {
     let progress = 0;
@@ -89,7 +89,9 @@ term.on('enter', v => {
     if (!v) {
         term.newLine();
     } else if (v === 'vi' || v.startsWith('vi ')) {
-        term.vi('test\\n11', \`\${v.substring(3)} "Ctrl/Cmd + s" to Save, "Esc" to Exit\`);
+        term.vi('test\\n11', {
+            title: \`\${v.substring(3)} "Ctrl/Cmd + s" to Save, "Esc" to Exit\`
+        });
     } else if (v === 'clear') {
         term.clearTerminal();
     } else if (v === 'help') {
@@ -125,7 +127,7 @@ function writeHelp () {
         'header  : "header <name>" to Set Header',
         'theme   : Toggle theme between dark and light',
         'font    : "font <size>" to set font-size'
-    ].join('\\n'), false);
+    ].join('\\n'), {html: false});
 }
 function mockProgress () {
     let progress = 0;

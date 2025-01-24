@@ -523,9 +523,13 @@ export class Editor extends Eveit<{
             this.relocateCursorPosition();
     }
     setCursorToHead () {
-        const el = this.textarea.el;
-        el.selectionStart = el.selectionEnd = this.header.length;
+        this.setCursorPos(0);
         // (this.textarea.el as HTMLTextAreaElement).setSelectionRange(0, 0);
+    }
+
+    setCursorPos (n: number) {
+        const el = this.textarea.el;
+        el.selectionStart = el.selectionEnd = this.header.length + n;
     }
 
     resize (fromInit = false) {

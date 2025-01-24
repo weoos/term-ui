@@ -54,27 +54,32 @@ CDN
 <script>console.log(window.WebTermUi);</script>
 ```
 
+More usage please refer to [typing](https://cdn.jsdelivr.net/npm/web-term-ui/web-term-ui.es.min.d.ts)
+
 ## Options
 
 ```ts
 export interface IWebTermStyle {
-    padding?: number;
-    color?: string;
-    background?: string;
-    fontSize?: number;
+	padding?: number;
+	color?: string;
+	background?: string;
+	selectionColor?: string;
+	selectionBackground?: string;
+	fontSize?: number;
 }
 export interface IWebTermOptions {
-    title?: string;
-    titleHtml?: boolean;
-    container?: string | HTMLElement;
-    historyMax?: number;
-    storageProvider?: {
-        read: () => IPromiseMaybe<string>;
-        write: (history: string) => IPromiseMaybe<boolean>;
-    };
-    header?: string;
-    theme?: "dark" | "light";
-    style?: IWebTermStyle;
+	title?: string;
+	titleHtml?: boolean;
+	container?: string | HTMLElement;
+	historyMax?: number;
+	storageProvider?: {
+		read: () => IPromiseMaybe<string>;
+		write: (history: string) => IPromiseMaybe<boolean>;
+	};
+	header?: string;
+	theme?: "dark" | "light";
+	style?: IWebTermStyle;
+	parseCommand?: boolean;
 }
 ```
 
@@ -87,24 +92,32 @@ export interface IWebTermOptions {
     get value(): string;
     get header(): string;
     get fontSize(): number;
-    setTheme(theme: "light" | "dark"): void;
-    setColor(opt: Pick<IWebTermStyle, "background" | "color">): void;
-    setFontSize(size: number): void;
-    clearInputHistory(): void;
-    write(content: IContent, html?: boolean): void;
-    insertEdit(content: string): void;
-    replaceEdit(content: string): void;
-    pushEdit(content: string): void;
-    vi(v?: string, title?: string, html?: boolean): void;
-    clearTerminal(): void;
-    newLine(html?: boolean): void;
-    setHeader(header: string): void;
-    scrollToBottom(): void;
-    focus(): void;
-    writeBelow(content: IContent, html?: boolean): void;
-    pushBelow(content: IContent, html?: boolean): void;
-    clearBelow(): void;
-    resize(): void;
+	setTheme(theme: "light" | "dark"): void;
+	setColor(opt: Pick<IWebTermStyle, "background" | "color" | "selectionBackground" | "selectionColor">): void;
+	setFontSize(size: number): void;
+	clearInputHistory(): void;
+	write(content: IContent, { html, clear, }?: {
+		html?: boolean;
+		clear?: boolean;
+	}): void;
+	insertEdit(content: string): void;
+	replaceEdit(content: string): void;
+	setCursorPos(index: number): void;
+	pushEdit(content: string): void;
+	vi(v?: string, { title, html }?: {
+		title?: string;
+		html?: boolean;
+	}): void;
+	clearTerminal(): void;
+	newLine(html?: boolean): void;
+	setHeader(header: string): void;
+	scrollToBottom(): void;
+	focus(): void;
+	writeBelow(content: IContent, html?: boolean): void;
+	pushBelow(content: IContent, html?: boolean): void;
+	clearBelow(): void;
+	resize(): void;
+	parseCommand(v: string): ICommandInfo[];
 }
 ```
 
@@ -115,7 +128,7 @@ export interface IWebTermEvents {
     'enter': [string],
     'edit-done': [string],
     'edit-cancel': [],
-    'tab': [string];
+    'tab': [string]; // before cursor value
     "input": [
         string, // full value
         string, // before cursor value
@@ -126,7 +139,12 @@ export interface IWebTermEvents {
     "edit-cursor-change": [
         ICursorChangeData
     ];
+	"command": [
+		ICommandInfo,
+		ICommandInfo[]
+	];
 }
+
 interface ICursorChangeData {
     x: number;
     y: number;

@@ -4,3 +4,6 @@
  * @Description: Coding something
  */
 export {WebTerm} from './term';
+
+export {parseCommand, isCtrlPressed} from './utils';
+export * from './types.d';

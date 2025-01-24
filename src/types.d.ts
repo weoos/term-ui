@@ -16,6 +16,7 @@ export interface IWebTermEvents {
     'input': [string, string],
     'cursor-change': [ICursorChangeData],
     'edit-cursor-change': [ICursorChangeData],
+    'command': [ICommandInfo, ICommandInfo[]],
 }
 
 export interface IWebTermStyle {
@@ -39,6 +40,13 @@ export interface IWebTermOptions {
     header?: string,
     theme?: 'dark'|'light',
     style?: IWebTermStyle,
+    parseCommand?: boolean,
 }
 
 export type IContent = string|number|boolean|Dom|HTMLElement;
+
+export interface ICommandInfo {
+    name: string;
+    args: string[];
+    options: Record<string, string|boolean>;
+}
