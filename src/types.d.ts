@@ -1,11 +1,9 @@
 import type {Dom} from 'link-dom';
 import type {ICursorChangeData} from './ui/editor-comp/editor';
+import type {ICommandInfo} from '@tcbox/command-parser';
 
-/*
- * @Author: chenzhongsheng
- * @Date: 2024-12-28 23:29:02
- * @Description: Coding something
- */
+export type {ICommandInfo} from '@tcbox/command-parser';
+
 export type IPromiseMaybe<T=any> = Promise<T>|T;
 
 export interface IWebTermEvents {
@@ -41,9 +39,3 @@ export interface IWebTermOptions {
 }
 
 export type IContent = string|number|boolean|Dom|HTMLElement;
-
-export interface ICommandInfo {
-    name: string;
-    args: string[];
-    options: Record<string, string|boolean>;
-}

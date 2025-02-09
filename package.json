@@ -5,7 +5,7 @@
     "fileName": "web-term-ui",
     "publish": {
       "name": "web-term-ui",
-      "version": "0.0.12",
+      "version": "0.0.13",
       "description": "Emulate the UI components of the terminal.",
       "repository": {
         "type": "git",
@@ -37,7 +37,7 @@
     "build:app": "vite build -m=app",
     "preview": "vite preview",
     "jsbox": "npx jsbox-gen jsbox-demo",
-    "jsbox:dev":  "npx jsbox-gen jsbox-demo --format --watch"
+    "jsbox:dev": "npx jsbox-gen jsbox-demo --format --watch"
   },
   "devDependencies": {
     "@babel/preset-env": "^7.21.4",
@@ -59,6 +59,7 @@
     "vite-plugin-css-injected-by-js": "^3.5.2"
   },
   "dependencies": {
+    "@tcbox/command-parser": "^0.0.1",
     "eveit": "^0.0.4",
     "history-stack": "^0.0.8",
     "link-dom": "^0.0.8",

@@ -13,7 +13,7 @@ import {ContainerClass, DisplayGap} from './ui/style/style';
 import {Editor} from './ui/editor-comp/editor';
 import {TermBelow} from './ui/below';
 import {DefaultStyle} from './ui/constant/constant';
-import {parseCommand} from './utils';
+import {parseCommand} from '@tcbox/command-parser';
 import {EditorManager} from './ui/editor-comp/editor-manager';
 
 function createDefaultStorageProvider () {
