@@ -7,7 +7,7 @@
 
 A Web Terminal UI Lib
 
-[Demo](https://weoos.github.io/term-ui) | [Playground](https://theajack.github.io/jsbox?github=weoos.term-ui) | [Version](https://github.com/weoos/term-ui/blob/main/dev/version.md)
+[Demo](https://weoos.github.io/term-ui) | [Playground](https://theajack.github.io/jsbox?config=weoos.term-ui) | [Version](https://github.com/weoos/term-ui/blob/main/dev/version.md)
 
 Xterm.js is Good, but it is a nightmare when building pure front-end terminal UI, So You need This Lib.
 
@@ -39,9 +39,6 @@ term.on('enter', v => {
     if (v === 'vi') term.vi('', `"Ctrl/Cmd + s" to Save, "Esc" to Exit`);
     else term.write(`Exec "${v}"`);
 });
-term.on('edit-done', v => {
-    term.write(`Edit Save: ${v}`);
-});
 term.on('tab', () => {
     term.insertEdit('[test]');
 });
@@ -55,6 +52,23 @@ CDN
 ```
 
 More usage please refer to [typing](https://cdn.jsdelivr.net/npm/web-term-ui/web-term-ui.es.min.d.ts)
+
+### editor
+
+```js
+import {WebTerm} from 'web-term-ui';
+const term = new WebTerm({
+    title: 'This is a Demo. Type "help" to get Help.\n',
+    container: '#container',
+    header: '/ admin$ ',
+});
+
+const editor = term.edit('Hello', {
+	title: 'Edit <h1>Demo</h1>',
+	html: true,
+}); // title and html is optional
+editor.on('')
+```
 
 ## Options
 
@@ -100,14 +114,12 @@ export interface IWebTermOptions {
 		html?: boolean;
 		clear?: boolean;
 	}): void;
-	insertEdit(content: string): void;
-	replaceEdit(content: string): void;
+	insertText(content: string): void;
 	setCursorPos(index: number): void;
-	pushEdit(content: string): void;
-	vi(v?: string, { title, html }?: {
+	edit(v?: string, opt?: {
 		title?: string;
 		html?: boolean;
-	}): void;
+	}): Editor;
 	clearTerminal(): void;
 	newLine(html?: boolean): void;
 	setHeader(header: string): void;
@@ -121,22 +133,58 @@ export interface IWebTermOptions {
 }
 ```
 
+Editor
+
+```ts
+declare class Editor {
+	setFontSize(v: number): void;
+	get value(): string;
+	get fullValue(): string;
+	get beforeValue(): string;
+	get headerWidth(): number;
+	focus(): void;
+	pushText(v: string): void;
+	insertText(content: string): void;
+	replaceText(v: string): void;
+	clearContent(relocate?: boolean): void;
+	setCursorToHead(): void;
+	setCursorPos(n: number): void;
+	resize(fromInit?: boolean): void;
+}
+```
+
+Editor Events
+
+```ts
+{
+	key: [
+		"Enter" | "ArrowUp" | "ArrowDown" | "Tab"
+	];
+	input: [
+	];
+	"cursor-change": [
+		ICursorChangeData
+	];
+	"edit-done": [
+		string
+	];
+	"edit-cancel": [
+	];
+}
+```
+
+
 ## Events
 
 ```ts
 export interface IWebTermEvents {
     'enter': [string],
-    'edit-done': [string],
-    'edit-cancel': [],
     'tab': [string]; // before cursor value
     "input": [
         string, // full value
         string, // before cursor value
     ];
     "cursor-change": [
-        ICursorChangeData
-    ];
-    "edit-cursor-change": [
         ICursorChangeData
     ];
 	"command": [

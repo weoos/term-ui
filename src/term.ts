@@ -8,12 +8,13 @@ import type {IContent, IWebTermEvents, IWebTermOptions, IWebTermStyle} from './t
 import {TermHistory} from './history';
 import {dom, Dom, mount, createStore} from 'link-dom';
 import {TermDisplay} from './ui/display';
-import {TermEditor} from './ui/editor';
+// import {TermEditor} from './ui/editor';
 import {ContainerClass, DisplayGap} from './ui/style/style';
 import {Editor} from './ui/editor-comp/editor';
 import {TermBelow} from './ui/below';
 import {DefaultStyle} from './ui/constant/constant';
 import {parseCommand} from './utils';
+import {EditorManager} from './ui/editor-comp/editor-manager';
 
 function createDefaultStorageProvider () {
     const KEY = '_web_term_ui_history;';
@@ -37,7 +38,6 @@ export class WebTerm extends Eveit<IWebTermEvents> {
     mainContainer: Dom;
     input: Editor;
     display: TermDisplay;
-    editor: TermEditor;
     below: TermBelow;
 
     style: Required<IWebTermStyle> = {
@@ -50,6 +50,8 @@ export class WebTerm extends Eveit<IWebTermEvents> {
 
     theme: 'dark'|'light' = 'dark';
 
+    private editManager: EditorManager;
+
     private _parseCommand: boolean;
 
     constructor ({
@@ -60,7 +62,7 @@ export class WebTerm extends Eveit<IWebTermEvents> {
         container,
         header,
         theme,
-        style = {},
+        style = {padding: 5},
         parseCommand = true,
     }: IWebTermOptions = {}) {
         super();
@@ -69,7 +71,9 @@ export class WebTerm extends Eveit<IWebTermEvents> {
         this.history = new TermHistory(historyMax, storageProvider);
         Object.assign(this.style, style);
 
-        this.editor = new TermEditor(this.store, this.style);
+        this.editManager = new EditorManager(this, style);
+
+        // this.editor = new TermEditor(this.store, this.style);
         
         this.input = new Editor({
             paddingTop: DisplayGap,
@@ -171,23 +175,6 @@ export class WebTerm extends Eveit<IWebTermEvents> {
             this.input.focus();
         });
 
-        const hideEditor = () => {
-            this.store.showEditor = false;
-            this.input.focus();
-        };
-
-        this.editor.on('edit-done', v => {
-            hideEditor();
-            this.emit('edit-done', v);
-        });
-
-        this.editor.on('edit-cancel', () => {
-            hideEditor();
-            this.emit('edit-cancel');
-        });
-        this.editor.editor.on('cursor-change', data => {
-            this.emit('edit-cursor-change', data);
-        });
         this.input.on('cursor-change', data => {
             this.emit('cursor-change', data);
         });
@@ -202,8 +189,7 @@ export class WebTerm extends Eveit<IWebTermEvents> {
                     this.display.container,
                     this.input.container,
                     this.below.container,
-                ).show(() => !this.store.showEditor),
-            this.editor.container
+                ).show(() => !this.store.showEditor)
         );
     }
     setTheme (theme: 'light'|'dark') {
@@ -243,7 +229,7 @@ export class WebTerm extends Eveit<IWebTermEvents> {
 
     setFontSize (size: number) {
         this._setFontSize(size);
-        this.editor.editor.setFontSize(size);
+        this.editManager.setFontSize(size);
         this.input.setFontSize(size);
         this.resize();
     }
@@ -263,29 +249,19 @@ export class WebTerm extends Eveit<IWebTermEvents> {
         if (clear) this.input.clearContent();
         this.scrollToBottom();
     }
-
-    insertEdit (content: string) {
-        this.editor.editor.insertText(content);
-    }
-
-    replaceEdit (content: string) {
-        this.editor.editor.replaceText(content);
+    insertText (content: string) {
+        this.input.insertText(content);
     }
 
     setCursorPos (index: number) {
         this.input.setCursorPos(index);
     }
 
-    pushEdit (content: string) {
-        this.editor.editor.pushText(content);
-    }
-
-    vi (
+    edit (
         v: string = '',
-        {title = '', html = true}: {title?:string, html?: boolean} = {}
+        opt: {title?:string, html?: boolean} = {}
     ) {
-        this.store.showEditor = true;
-        this.editor.vi(v, {title, html});
+        return this.editManager.create(v, opt);
     }
 
     clearTerminal () {
@@ -322,7 +298,7 @@ export class WebTerm extends Eveit<IWebTermEvents> {
     }
 
     resize () {
-        this.editor.editor.resize();
+        this.editManager.resize();
         this.input.resize();
     }
 

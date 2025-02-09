@@ -1,0 +1,37 @@
+<!-- @dep = web-term-ui --> 
+<!-- @desc = Basic usage of web-term-ui -->
+<!-- @hideLog -->
+
+<div id="container" style="height: 400px;"></div>
+<script>
+    import { WebTerm } from 'web-term-ui';
+    const term = new WebTerm({
+        title: 'This is a Demo. Try type progress\n',
+        container: '#container',
+        header: '/ admin$ ',
+    });
+    term.on('enter', (line) => {
+        if (line === 'progress') {
+            mockProgress();
+        } else {
+            term.write(`Exec: ${line}`);
+        }
+    });
+
+    function mockProgress () {
+        let progress = 0;
+        const time = Date.now();
+        const interval = setInterval(() => {
+            progress += Math.round(Math.random() * 10);
+            if (progress > 100) {
+                progress = 100;
+                clearInterval(interval);
+            }
+            term.writeBelow(`Progressing...[${progress}%]`);
+            if (progress === 100) {
+                term.clearBelow();
+                term.write(`Progress Done in ${Date.now() - time}ms!`);
+            }
+        }, 100);
+    }
+</script>

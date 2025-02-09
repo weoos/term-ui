@@ -11,11 +11,8 @@ export type IPromiseMaybe<T=any> = Promise<T>|T;
 export interface IWebTermEvents {
     'enter': [string],
     'tab': [string],
-    'edit-done': [string],
-    'edit-cancel': [],
     'input': [string, string],
     'cursor-change': [ICursorChangeData],
-    'edit-cursor-change': [ICursorChangeData],
     'command': [ICommandInfo, ICommandInfo[]],
 }
 

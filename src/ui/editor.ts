@@ -5,25 +5,19 @@
  */
 import type {Dom} from 'link-dom';
 import {dom} from 'link-dom';
-import type {IStore} from './store';
 import {Editor} from './editor-comp/editor';
 import {Styles} from './style/style';
 import {isCtrlPressed} from '../utils';
-import {Eveit} from 'eveit';
-import type {IWebTermStyle} from 'src/types';
+import type {IWebTermStyle} from '../types';
 
-export class TermEditor extends Eveit<{
-    'edit-done': [string],
-    'edit-cancel': [],
-}> {
+export class TermEditor {
     container: Dom;
 
     editor: Editor;
 
     title: Dom;
 
-    constructor (store: IStore, style: IWebTermStyle) {
-        super();
+    constructor (style: IWebTermStyle) {
 
         this.editor = new Editor({
             mode: 'full',
@@ -35,16 +29,16 @@ export class TermEditor extends Eveit<{
         this.container = dom.div.style({
             ...Styles.FullParent,
             padding: style.padding,
-            position: 'relative',
             zIndex: 100,
             flexDirection: 'column',
+            display: 'flex',
         }).append(
             this.title = dom.div.class('term-editor-title').text(''),
             this.editor.container.style({
                 flex: '1',
                 height: 'auto',
             }),
-        ).show(() => store.showEditor, 'flex');
+        );
 
         this.container.on('click', e => {
             e.stopPropagation();
@@ -53,21 +47,20 @@ export class TermEditor extends Eveit<{
             if (e.code === 'KeyS' && isCtrlPressed(e)) {
                 const v = this.editor.value;
                 this.editor.clearContent();
-                this.emit('edit-done', v);
+                this.editor.emit('edit-done', v);
                 e.preventDefault();
             }
             if (e.code === 'Escape') {
                 // console.log('Esc press');
                 this.editor.clearContent();
-                this.emit('edit-cancel');
+                this.editor.emit('edit-cancel');
             }
         });
     }
 
-    vi (v: string, {title = '', html = true}: {title?:string, html?: boolean} = {}) {
+    _init (text: string, {title = '', html = false}: {title?:string, html?: boolean}) {
         this.editor.textarea.el.focus();
-        this.editor.replaceText(v);
-
+        this.editor.replaceText(text);
         this.title.style({
             paddingBottom: title ? '5px' : 0,
         })[html ? 'html' : 'text'](title);

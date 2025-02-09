@@ -1,0 +1,30 @@
+<!-- @dep = web-term-ui --> 
+<!-- @desc = Basic usage of web-term-ui -->
+<!-- @hideLog -->
+
+<div id="container" style="height: 400px;"></div>
+<script>
+    import { WebTerm } from 'web-term-ui';
+    const term = new WebTerm({
+        title: 'This is a Hint Demo.\n',
+        container: '#container',
+        header: '/ admin$ ',
+    });
+    let timer = null;
+    function startHint (v) {
+        clearHint();
+        if(!v) return;
+        timer = setTimeout(() => {
+            term.writeBelow(`${v}-mock-hint1 ${v}-mock-hint1`);
+        }, 1000);
+    }
+    function clearHint () {
+        term.clearBelow();
+        clearTimeout(timer);
+    }
+    term.on('input', startHint);
+    term.on('enter', (line) => {
+        clearHint();
+        term.write(`Exec: ${line}`);
+    });
+</script>

@@ -1,0 +1,16 @@
+<!-- @dep = web-term-ui --> 
+<!-- @desc = Basic usage of web-term-ui -->
+<!-- @hideLog -->
+
+<div id="container" style="height: 400px;"></div>
+<script>
+    import { WebTerm } from 'web-term-ui';
+    const term = new WebTerm({
+        title: 'This is a Demo.\n',
+        container: '#container',
+        header: '/ admin$ ',
+    });
+    term.on('enter', (line) => {
+        term.write(`Exec: ${line}`);
+    });
+</script>

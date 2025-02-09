@@ -4,20 +4,43 @@
  * @Description: Coding something
  */
 import {HighLight} from 'light-hl';
-// import {WebTerm} from '../src/index';
-import {WebTerm} from '../npm';
+import {WebTerm} from '../src/index';
+// import {WebTerm} from '../npm';
 const term = new WebTerm({
     title: 'This is a Demo. Type "help" to get Help.\n',
     container: '#container',
     header: '/ admin$ ',
     // theme: 'light',
-    style: {padding: 10}
+    // style: {padding: 10}
+});
+const Hint = (() => {
+    let timer = null;
+    return {
+        start (v) {
+            if (!v) return;
+            this.clear();
+            timer = setTimeout(() => {
+                term.writeBelow(`${v}-mock-hint1 ${v}-mock-hint1`);
+            }, 1000);
+        },
+        clear () {
+            term.clearBelow();
+            clearTimeout(timer);
+        }
+    };
+})();
+term.on('input', v => {
+    Hint.start(v);
 });
 term.on('enter', v => {
+    Hint.clear();
     if (!v) {
         term.newLine();
     } else if (v === 'vi' || v.startsWith('vi ')) {
-        term.vi('test\n11', {title: `${v.substring(3)} "Ctrl/Cmd + s" to Save, "Esc" to Exit`});
+        const editor = term.edit('test\n11', {
+            title: `${v.substring(3)} "Ctrl/Cmd + s" to Save, "Esc" to Exit`
+        });
+        editor.on('edit-done', () => { term.write(`Edit Save: ${v}`);});
     } else if (v === 'clear') {
         term.clearTerminal();
     } else if (v === 'help') {
@@ -36,14 +59,11 @@ term.on('enter', v => {
         term.setFontSize(size);
         term.write(`Set FontSize = "${size}"`);
     } else {
-        term.write(`Exec "${v}"`, {clear: false});
+        term.write(`Exec "${v}"`);
     }
 });
-term.on('edit-done', v => {
-    term.write(`Edit Save: ${v}`);
-});
 term.on('tab', () => {
-    term.insertEdit('[test]');
+    term.insertText('[test]');
 });
 function writeHelp () {
     term.write([
@@ -89,9 +109,10 @@ term.on('enter', v => {
     if (!v) {
         term.newLine();
     } else if (v === 'vi' || v.startsWith('vi ')) {
-        term.vi('test\\n11', {
+        const editor = term.edit('test\n11', {
             title: \`\${v.substring(3)} "Ctrl/Cmd + s" to Save, "Esc" to Exit\`
         });
+        editor.on('edit-done', () => { term.write(\`Edit Save: \${v}\`);});
     } else if (v === 'clear') {
         term.clearTerminal();
     } else if (v === 'help') {
@@ -112,9 +133,6 @@ term.on('enter', v => {
     } else {
         term.write(\`Exec "\${v}"\`);
     }
-});
-term.on('edit-done', v => {
-    term.write(\`Edit Save: \${v}\`);
 });
 term.on('tab', () => {
     term.insertEdit('[test]');

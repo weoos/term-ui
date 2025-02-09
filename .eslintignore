@@ -3,3 +3,4 @@ scripts/dev/*.js
 *.html
 npm
 docs
+jsbox.*.js

@@ -40,6 +40,8 @@ export class Editor extends Eveit<{
     key: ['Enter'|'ArrowUp'|'ArrowDown'|'Tab'],
     input: [],
     'cursor-change': [ICursorChangeData],
+    'edit-done': [string],
+    'edit-cancel': [],
 }> {
 
     SingleCharWidth = 9;
@@ -122,7 +124,6 @@ export class Editor extends Eveit<{
         this.render();
         this._monitorStart();
     }
-
 
     header = '';
 
