@@ -14,7 +14,7 @@ const term = new WebTerm({
     // style: {padding: 10}
 });
 const Hint = (() => {
-    let timer = null;
+    let timer: any = null;
     return {
         start (v) {
             if (!v) return;

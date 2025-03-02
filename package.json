@@ -5,7 +5,7 @@
     "fileName": "web-term-ui",
     "publish": {
       "name": "web-term-ui",
-      "version": "0.0.13",
+      "version": "0.0.14",
       "description": "Emulate the UI components of the terminal.",
       "repository": {
         "type": "git",
@@ -59,7 +59,7 @@
     "vite-plugin-css-injected-by-js": "^3.5.2"
   },
   "dependencies": {
-    "@tcbox/command-parser": "^0.0.1",
+    "@tcbox/command-parser": "^0.0.2",
     "eveit": "^0.0.4",
     "history-stack": "^0.0.8",
     "link-dom": "^0.0.8",

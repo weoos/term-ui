@@ -252,7 +252,9 @@ export class WebTerm extends Eveit<IWebTermEvents> {
     insertText (content: string) {
         this.input.insertText(content);
     }
-
+    clearContent () {
+        this.input.clearContent();
+    }
     setCursorPos (index: number) {
         this.input.setCursorPos(index);
     }
